@@ -181,4 +181,4 @@ Commit To Change: An AI Agents Hackathon
 
 ## License
 Educational/Hackathon purposes. Not financial advice.
-Built Claude, Gemini, and Opik
+Built using Claude, Gemini, and Opik
