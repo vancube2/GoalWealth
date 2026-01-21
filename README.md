@@ -16,7 +16,7 @@ GoalWealth is a comprehensive investment planning platform that creates personal
 
 ---
 
-## 🏆 Why GoalWealth Wins "Best Use of Opik"
+## Why GoalWealth Wins "Best Use of Opik"
 
 ### The Challenge
 How do you know if your AI investment advisor is giving quality advice? How do you improve it systematically?
