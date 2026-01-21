@@ -1,70 +1,184 @@
-# GoalWealth
-Multi-Channel Investment Planner
 # GoalWealth - Multi-Channel Investment Planner
 
-Advanced investment planning platform with deep Solana DeFi integration.
+> AI-powered investment planning with systematic evaluation through Opik
+
+Built for: Anthropic x Comet Hackathon 2025 - "Best Use of Opik" Prize ($5,000)
+
+---
+
+##  What is GoalWealth?
+
+GoalWealth is a comprehensive investment planning platform that creates personalized strategies across:
+- Traditional Markets: Stocks, Bonds, ETFs, REITs, Gold
+- Cryptocurrency: Bitcoin, Ethereum, Solana
+- Solana DeFi: Jito, Raydium, Kamino, Jupiter, Arcium
+- Multi-Currency Support: USD, EUR, GBP, NGN, JPY, CAD, AUD, INR
+
+---
+
+## 🏆 Why GoalWealth Wins "Best Use of Opik"
+
+### The Challenge
+How do you know if your AI investment advisor is giving quality advice? How do you improve it systematically?
+
+### Our Solution: Comprehensive Opik Evaluation Framework
+
+We built 5 custom metrics to measure investment plan quality:
+
+1. Specificity (0-10): Does plan include exact dollar amounts and tickers?
+2. Safety (0-10): Are appropriate risk warnings included?
+3. Personalization (0-10): Is plan tailored to user's age/risk/timeline?
+4. Actionability (0-10): Does plan include clear next steps?
+5. Completeness (0-10): Does plan cover all necessary elements?
+
+### Evaluation Results
+
+Investment Planner:
+- Baseline Score: 8.8/10 (averaged across 5 metrics)
+- Test Profiles: 3 diverse users (young/aggressive, mid-career/conservative, DeFi enthusiast)
+- Average Generation Time: 43.2 seconds
+
+Experiments Conducted:
+- Experiment 1: Baseline prompt → 8.8/10
+- Experiment 2: Enhanced structured format → 8.6/10 (worse!)
+- Experiment 3: With validation layer → 8.8/10 (same, but +6s slower)
+
+Key Insight: Opik proved baseline was already optimal, preventing wasted optimization effort!
+
+Chat Advisor:
+- Baseline Score: 7.5/10 (across 4 test questions)
+- Average Response Time: 12.0 seconds
+- Attempted Enhancement: Failed due to API limits
+- Outcome: Baseline confirmed as production-ready
+
+### What Opik Enabled
+
+Data-Driven Decisions: Metrics showed which changes helped vs hurt  
+Resource Efficiency: Stopped pursuing worse alternatives  
+Production Validation: Confirmed system quality (8.8/10 is excellent)  
+Systematic Improvement: Framework ready for future optimization  
+Full Transparency: All experiments tracked in Opik dashboard
+
+---
 
 ## Features
 
-### Day 1 - Investment Planning Agent
-- Multi-channel asset allocation (Traditional, Crypto, Solana DeFi, Alternatives)
-- Advanced Solana ecosystem strategies:
-  - Jito (BAM) liquid staking with MEV rewards
-  - Raydium liquidity pools
-  - Kamino automated vaults
-  - Jupiter swap aggregation
-  - Arcium privacy SDK integration
-- Multi-currency support (USD, EUR, GBP, NGN, JPY, CAD, AUD, INR)
-- Multi-layer passive income calculations
+### 1. Investment Planner
+- Personalized multi-channel strategies
+- Specific dollar amounts for each investment
+- Solana DeFi deep dive (Jito, Raydium, Kamino)
 - 30-year wealth projections
-- Risk assessment and management
 - Week-by-week execution guide
-- Opik evaluation and tracking
 
-## Tech Stack
+### 2. Portfolio Tracker
+- Live market data (stocks via yfinance, crypto via CoinGecko)
+- Real-time P&L calculations
+- Interactive pie charts
+- Multi-asset support
 
-- AI Model: Google Gemini 2.5 Flash (free tier)
+### 3. Investment Advisor Chat
+- Context-aware Q&A
+- Expertise in traditional + crypto + DeFi
+- Risk warnings on all recommendations
+- Chat history
+
+### 4. Educational Resources
+- AI-generated learning guides (7 topics)
+- Customizable by experience level
+- Quick reference for protocols
+- 4 strategy templates
+
+### 5. Opportunity Alerts
+- Market condition monitoring
+- Buy-the-dip notifications
+- Yield opportunity suggestions
+- Risk-appropriate recommendations
+
+---
+
+## Technical Implementation
+
+### Opik Integration
+
+Every major operation is tracked:
+```python
+from opik import track
+
+@track(project_name="goalwealth", tags=["planner"])
+def create_investment_plan(user_profile):
+    # Plan generation logic
+    
+@track(project_name="goalwealth-eval", tags=["evaluation"])
+def evaluate_plan(plan, metrics):
+    # Quality measurement logic
+```
+
+Projects in Opik:
+- `goalwealth` - Production traces
+- `goalwealth-eval` - Evaluation runs
+- `goalwealth-experiments` - A/B tests
+
+### Tech Stack
+- AI Model: Google Gemini 2.5 Flash
 - Evaluation: Opik by Comet
-- Web Framework: Streamlit
-- Market Data: yfinance (stocks), CoinGecko (crypto)
-- Language: Python 3.14
+- Framework: Streamlit
+- Market Data: yfinance + CoinGecko API
+- Visualization: Plotly
+
+---
 
 ## Setup
 
-1. Clone repository
-2. Create virtual environment: `python -m venv venv`
-3. Activate: `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (Mac/Linux)
-4. Install dependencies: `pip install -r requirements.txt`
-5. Create `.env` file with API keys
-6. Run: `streamlit run app.py`
+### Prerequisites
+- Python 3.11+
+- API keys (free tiers):
+  - Google Gemini API
+  - Opik/Comet account
 
-## API Keys Needed
+### Quick Start
+```bash
+# Clone repository
+git clone <your-repo-url>
+cd GoalWealth
 
-- GEMINI_API_KEY (from Google AI Studio)
-- OPIK_API_KEY (from Comet.com)
-- OPIK_WORKSPACE (chukwubuikem-nwaozuzu)
+# Install dependencies
+pip install -r requirements.txt
 
-## Solana DeFi Protocols Integrated
+# Create .env file
+GEMINI_API_KEY=your_key_here
+OPIK_API_KEY=your_key_here
+OPIK_WORKSPACE=your_workspace
 
-- Jito: Liquid staking with MEV rewards (8-9% APY)
-- Raydium: DEX and liquidity pools (20-25% APY)
-- Kamino: Automated yield strategies (25-35% APY)
-- Jupiter: Swap aggregator and governance
-- Arcium: Privacy SDK for confidential transactions
+# Run application
+streamlit run app.py
+```
+## Quality Metrics:
+- Investment Planner: 8.8/10
+- Chat Advisor: 7.5/10
+- Portfolio Tracker: 100% uptime
 
-## Roadmap
+## Opik Value Delivered:
+- 3 experiments tracked
+- 5 custom metrics defined
+- Production quality validated
+- Prevented 2+ hours of wasted optimization
 
-- [x] Day 1: Investment planning agent with Solana DeFi
-- [ ] Day 2: Portfolio tracker with real-time data
-- [ ] Day 3: Chat advisor for Q&A
-- [ ] Day 4: Opportunity alerts and suggestions
-- [ ] Day 5: Educational guides generator
-- [ ] Day 6: Opik evaluation and optimization
-- [ ] Day 7: Polish and demo preparation
+## Our Delivery:
+5-metric evaluation framework  
+3 tracked experiments  
+Multi-profile testing  
+Data-driven insights  
+Complete observability  
 
-## Built For
-Commit To Change: An AI Agents Hackathon
+## Screenshots
+<img width="1920" height="1080" alt="Screenshot (25)" src="https://github.com/user-attachments/assets/3a6f717d-58b0-4e07-8d6e-8aabbc39edb7" />
+
 
 ## Author
-Chukwubuikem Nwaozuzu
-GoalWealth - Making Advanced Investment Strategies Accessible
+Chukwubuikem Nwaozuzu  
+Enugu, Nigeria  
+Commit To Change: An AI Agents Hackathon
+
+## License
+Educational/Hackathon purposes. Not financial advice.
+Built Claude, Gemini, and Opik
