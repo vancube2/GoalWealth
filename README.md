@@ -2,7 +2,7 @@
 
 > AI-powered investment planning with systematic evaluation through Opik
 
-Built for: Anthropic x Comet Hackathon 2025 - "Best Use of Opik" Prize ($5,000)
+Commit To Change: An AI Agents Hackathon
 
 ---
 
