@@ -202,15 +202,86 @@ Choose growth! 🚀
 """
 }
 
+import google.generativeai as genai
+from pathlib import Path
+import time
+
+# Robust env loading
+gemini_key = None
+try:
+    candidates = [
+        Path(__file__).parent / '.env',
+        Path(os.getcwd()) / '.env',
+        Path('C:/Users/DELL/Documents/GoalWealth/.env')
+    ]
+    for env_path in candidates:
+        if env_path.exists():
+            try:
+                with open(env_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith('GEMINI_API_KEY='):
+                            gemini_key = line.split('=', 1)[1].strip()
+                            break
+            except: pass
+        if gemini_key: break
+except: pass
+
 @track(project_name="goalwealth", tags=["advisor"])
 def get_investment_advice(question, user_context=None):
     """
-    Get investment advice - using pre-written expert responses due to API limits
+    Get investment advice using Gemini AI with fallback to expert responses
     """
     
+    # 1. Try AI Generation First
+    if gemini_key:
+        try:
+            # Construct Prompt
+            context_str = f"Age {user_context.get('age', 30)}, Risk: {user_context.get('risk_tolerance', 'Medium')}, Goal: {user_context.get('goal', 'Wealth Building')}"
+            
+            prompt = f"""
+            You are an expert financial advisor specializing in Crypto (Solana ecosystem) and Traditional Finance.
+            User Context: {context_str}
+            
+            User Question: "{question}"
+            
+            Provide a short, professional, and actionable answer.
+            If the user asks about specific Solana attributes (Jito, Raydium), provide accurate DeFi details.
+            """
+            
+            # Helper for generation with retry
+            def generate_with_retry(model_name, prompt):
+                genai.configure(api_key=gemini_key)
+                model = genai.GenerativeModel(model_name)
+                max_retries = 3
+                for attempt in range(max_retries):
+                    try:
+                        return model.generate_content(prompt)
+                    except Exception as e:
+                         # Retry on Rate Limit (429) or Server Error (500+)
+                        if ("429" in str(e) or "403" in str(e) or "500" in str(e)) and attempt < max_retries - 1:
+                            wait_time = 5 * (attempt + 1)
+                            time.sleep(wait_time)
+                        else:
+                            raise e
+
+            # Model Priority List
+            models_to_try = ['gemini-3-flash-preview', 'gemini-2.0-flash-exp']
+            
+            for model_name in models_to_try:
+                try:
+                    response = generate_with_retry(model_name, prompt)
+                    if response:
+                        return response.text
+                except Exception as e:
+                    pass
+                    
+        except Exception as e:
+            pass # Fallback to static if AI fails entirely
+
+    # 2. Fallback to Static Expert Responses
     question_lower = question.lower()
     
-    # Match question to best response
     if 'bitcoin' in question_lower and 'solana' in question_lower:
         return EXPERT_RESPONSES['bitcoin_solana']
     
@@ -226,11 +297,13 @@ def get_investment_advice(question, user_context=None):
     elif 'gold' in question_lower:
         return EXPERT_RESPONSES['gold_investment']
     
-    # Generic fallback for other questions
+    # Generic fallback
     else:
         context = f"(Age {user_context.get('age', 30)}, {user_context.get('risk_tolerance', 'Medium')} risk, {user_context.get('timeline', 30)}-year timeline)"
         
-        return f"""Based on your profile {context}, here are key investment principles:
+        return f"""(AI Unavailable - Using Standard Response)
+        
+Based on your profile {context}, here are key investment principles:
 
 **Diversification Strategy:**
 - 50-60% Traditional (VTI stocks, BND bonds)
@@ -245,25 +318,6 @@ def get_investment_advice(question, user_context=None):
 2. Start with safer options (Jito staking at 8-9% APY)
 3. Research thoroughly before high-risk strategies
 4. Never invest more than you can afford to lose
-
-**Next Steps:**
-1. Review the Resources tab for detailed guides
-2. Check Portfolio Tracker for asset allocation
-3. Start with educational content before investing
-
-**Top Opportunities for Your Profile:**
-- **Low Risk:** Jito staking (8-9% APY) - Visit jito.network
-- **Medium Risk:** Raydium pools (20-25% APY) - Visit raydium.io
-- **High Risk:** Kamino vaults (25-35% APY) - Visit kamino.finance
-
-**Common Questions I Can Answer:**
-- "How does Jito staking work?"
-- "What are the risks of DeFi?"
-- "Should I buy Bitcoin or Solana?"
-- "Is Arcium a good investment?"
-- "Why invest in gold?"
-
-Try asking one of these specific questions for detailed advice!
 """
 
 

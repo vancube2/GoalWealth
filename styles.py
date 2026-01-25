@@ -1,113 +1,334 @@
 import streamlit as st
 
 def apply_custom_styles():
-    """Apply professional custom styling"""
+    """Apply premium financial dashboard styling (Dark/Glassmorphism)"""
     st.markdown("""
     <style>
-    /* Main container */
-    .main {
-        padding-top: 2rem;
+    /* Import Professional Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+    
+    /* Global Variables */
+    :root {
+        --bg-dark: #0B1120;
+        --bg-card: rgba(30, 41, 59, 0.7);
+        --bg-glass: rgba(15, 23, 42, 0.5);
+        --primary: #3B82F6;
+        --primary-gradient: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
+        --accent: #10B981;
+        --text-primary: #F8FAFC;
+        --text-secondary: #94A3B8;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --card-border: 1px solid rgba(255, 255, 255, 0.1);
+        --glow: 0 0 20px rgba(59, 130, 246, 0.1);
+    }
+    
+    /* Global Styles */
+    .stApp {
+        background-color: var(--bg-dark);
+        transition: background 0.8s ease-in-out;
+    }
+    
+    /* Global Styles */
+    html, body, [class*="css"] {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    /* Apply font to text elements but exclude icons if possible */
+    h1, h2, h3, h4, h5, h6, p, span, div, label, button, input, textarea, li, a {
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
     /* Headers */
-    h1 {
-        color: #1E3A8A;
-        font-weight: 700;
-        padding-bottom: 1rem;
-        border-bottom: 3px solid #3B82F6;
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-primary) !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.02em;
     }
     
-    h2 {
-        color: #1E40AF;
-        margin-top: 2rem;
+    p, label, span {
+        color: var(--text-secondary) !important;
     }
     
-    h3 {
-        color: #2563EB;
+    /* Card/Container Styles (Streamlit Containers) */
+    .element-container, .stExpander {
+        background: transparent;
     }
     
-    /* Metrics */
+    /* Metric Cards */
     [data-testid="stMetricValue"] {
-        font-size: 1.8rem;
-        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace !important;
+        color: var(--text-primary) !important;
+        font-weight: 700 !important;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
     }
     
-    [data-testid="stMetricDelta"] {
-        font-size: 1rem;
-    }
-    
-    /* Buttons */
-    .stButton > button {
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 0.75rem 1.5rem;
-        transition: all 0.3s ease;
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-    
-    /* Info boxes */
-    .stAlert {
-        border-radius: 8px;
-        border-left: 4px solid #3B82F6;
-    }
-    
-    /* Expanders */
-    .streamlit-expanderHeader {
-        background-color: #F3F4F6;
-        border-radius: 8px;
-        font-weight: 600;
+    [data-testid="stMetricLabel"] {
+        color: var(--text-secondary) !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
     }
     
     /* Sidebar */
     [data-testid="stSidebar"] {
-        background-color: #F9FAFB;
+        background-color: #0F1218;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
     }
     
-    /* Tables */
-    .dataframe {
-        border-radius: 8px;
-        overflow: hidden;
+    /* Buttons - Refined for stability */
+    .stButton > button {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        transition: all 0.2s ease;
+        white-space: nowrap !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        padding: 0.5rem 1rem !important;
     }
     
-    /* Chat messages */
+    .stButton > button[kind="primary"] {
+        background: var(--primary-gradient) !important;
+        border: none !important;
+        color: white !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .stButton > button:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        transform: translateY(-1px);
+    }
+
+    /* Inputs - Force Dark Theme */
+    /* CRITICAL INPUT FIX */
+    /* Target ALL input types specifically and aggressively */
+    input, textarea, select,
+    input[type="text"], input[type="number"], input[type="password"], input[type="email"],
+    .stTextInput > div > div > input,
+    .stNumberInput > div > div > input,
+    .stSelectbox > div > div > input {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        caret-color: #3B82F6 !important;
+        background-color: #1E293B !important; /* Solid dark background - No Transparency */
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* Target specific Streamlit/BaseWeb wrappers to ensure they are also solid */
+    div[data-baseweb="input"], 
+    div[data-baseweb="base-input"], 
+    div[data-baseweb="select"] > div {
+        background-color: #1E293B !important;
+        border: none !important;
+    }
+
+    div[data-baseweb="input"] > div,
+    div[data-baseweb="select"] > div,
+    div[data-baseweb="base-input"] > input,
+    input.st-ai,
+    textarea.st-ai {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: #F8FAFC !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    div[data-baseweb="input"] input {
+        color: #F8FAFC !important;
+    }
+    
+    div[data-baseweb="select"] span {
+        color: #F8FAFC !important;
+    }
+    
+    ::placeholder {
+        color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Tab Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        gap: 2rem;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        color: var(--text-secondary);
+        background-color: transparent;
+        border: none;
+        padding-bottom: 1rem;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+    }
+    
+    /* Charts Background */
+    .js-plotly-plot .plotly .main-svg {
+        background: transparent !important;
+    }
+
+    /* Dataframes */
+    [data-testid="stDataFrame"] {
+        background: transparent !important;
+    }
+    
+    /* === AI ADVISOR STYLING === */
     [data-testid="stChatMessage"] {
-        border-radius: 12px;
-        padding: 1rem;
-        margin-bottom: 1rem;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 16px !important;
+        padding: 1.25rem !important;
+        margin-bottom: 1.5rem !important;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    [data-testid="stChatMessage"] p {
+        color: #F8FAFC !important;
+        line-height: 1.6;
     }
     
-    /* Success/Error messages */
-    .stSuccess {
-        background-color: #D1FAE5;
-        border-left: 4px solid #10B981;
-        border-radius: 8px;
+    [data-testid="stChatInput"] textarea {
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+        border: 1px solid rgba(59, 130, 246, 0.3) !important;
+        border-radius: 12px !important;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255,255,255,0.1);
     }
     
-    .stError {
-        background-color: #FEE2E2;
-        border-left: 4px solid #EF4444;
-        border-radius: 8px;
-    }
     </style>
     """, unsafe_allow_html=True)
 
 
+def create_glass_card():
+    """Returns CSS style string for a glassmorphism card"""
+    return "background: rgba(22, 27, 34, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);"
+
+
+import base64
+import os
+
+def get_img_as_base64(file_path):
+    """Reads an image and returns a base64 string"""
+    try:
+        with open(file_path, "rb") as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except Exception:
+        return ""
+
+def create_hero_section():
+    """Create premium hero section"""
+    img_path = os.path.join("assets", "hero_bg.png")
+    img_base64 = get_img_as_base64(img_path)
+    
+    # Fallback gradient if image fails
+    bg_style = "background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.15) 100%);"
+    
+    if img_base64:
+        bg_style = f"background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('data:image/png;base64,{img_base64}'); background-size: cover; background-position: center;"
+
+    return f"""<div style="
+        {bg_style}
+        border: 1px solid rgba(59, 130, 246, 0.2); 
+        backdrop-filter: blur(10px); 
+        border-radius: 20px; 
+        padding: 4rem 2rem; 
+        margin-bottom: 3rem; 
+        text-align: center; 
+        position: relative; 
+        overflow: hidden;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    ">
+        <div style="position: relative; z-index: 1;">
+            <h1 style="font-size: 4rem; margin: 0; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(59, 130, 246, 0.3); letter-spacing: -0.04em;">GOALWEALTH</h1>
+            <p style="font-size: 1.2rem; color: #E2E8F0; margin-top: 1rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase;">Professional Asset Management</p>
+        </div>
+    </div>"""
+
+def get_section_background(section_name):
+    """Returns CSS to apply a specific background image to the whole app based on the section"""
+    images = {
+        "DASHBOARD": "hero_bg.png",
+        "PORTFOLIO": "portfolio_header.png",
+        "AI ADVISOR": "hero_bg.png",
+        "EDUCATION": "education_header.png"
+    }
+    
+    img_name = images.get(section_name, "hero_bg.png")
+    img_base64 = get_img_as_base64(os.path.join("assets", img_name))
+    
+    if not img_base64:
+        return ""
+        
+    return f"""
+    <style>
+    .stApp {{
+        background-image: linear-gradient(rgba(11, 14, 20, 0.7), rgba(11, 14, 20, 0.85)), url('data:image/png;base64,{img_base64}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
+    </style>
+    """
+
+def apply_tab_backgrounds():
+    """Injects CSS to apply specific backgrounds to the Portfolio and Education tabs"""
+    # Deprecated in favor of get_section_background, keeping for now
+    pass
+
+
+def create_stat_card(title, value, change=None, sub_change=None):
+    """Create a glassmorphic stat card"""
+    change_html = ""
+    if change is not None:
+        color = "#10B981" if change >= 0 else "#EF4444"
+        arrow = "↗" if change >= 0 else "↘"
+        bg_color = "rgba(16, 185, 129, 0.1)" if change >= 0 else "rgba(239, 68, 68, 0.1)"
+        change_html = f"<div style='display: inline-flex; align-items: center; padding: 4px 10px; background: {bg_color}; border-radius: 20px; color: {color}; font-size: 0.8rem; font-weight: 600; border: 1px solid {color}33;'>{arrow} {abs(change):.2f}%</div>"
+
+    return f"""<div style="{create_glass_card()}">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="color: #94A3B8; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">{title}</div>
+            {change_html}
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; color: #fff; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: break-word;">{value}</div>
+    </div>"""
+
+def create_metric_card_large(title, value, change=None):
+    """Same as stat card but potentially emphasized"""
+    return create_stat_card(title, value, change)
+
 def create_success_banner(message):
-    """Create a success banner"""
     return f"""
     <div style="
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: #10B981;
+        padding: 1rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         margin: 1rem 0;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     ">
-        ✓ {message}
+        <span style="font-size: 1.2rem;">✓</span>
+        <span style="font-weight: 500;">{message}</span>
     </div>
     """
+

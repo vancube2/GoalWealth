@@ -1,9 +1,11 @@
-from google import genai
+import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 from opik import track
 
-load_dotenv()
+from pathlib import Path
+env_path = Path(__file__).parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 @track(project_name="goalwealth", tags=["planner"])
 def create_investment_plan(user_profile):
@@ -23,211 +25,114 @@ def create_investment_plan(user_profile):
     print("="*70)
     
     gemini_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=gemini_key)
     
-    prompt = f"""
-You are an expert financial advisor specializing in cutting-edge multi-channel investing with deep knowledge of the Solana DeFi ecosystem.
-
-USER PROFILE:
-- Age: {user_profile['age']}
-- Currency: {user_profile.get('currency', 'USD')}
-- Annual Income: {user_profile.get('currency_symbol', '$')}{user_profile['income']:,}
-- Starting Capital: {user_profile.get('currency_symbol', '$')}{user_profile['capital']:,}
-- Monthly Investment: {user_profile.get('currency_symbol', '$')}{user_profile['monthly']:,}
-- Investment Timeline: {user_profile['timeline']} years
-- Risk Tolerance: {user_profile['risk_tolerance']}
-- Investment Goal: {user_profile['goal']}
-
-IMPORTANT: All amounts in the plan should use {user_profile.get('currency_symbol', '$')} currency symbol.
-
-CREATE A COMPREHENSIVE MULTI-CHANNEL INVESTMENT PLAN WITH ADVANCED SOLANA ECOSYSTEM INTEGRATION:
-
-1. RISK ASSESSMENT (1-10 scale)
-   Provide detailed risk score with reasoning.
-
-2. MULTI-CHANNEL ASSET ALLOCATION
-
-   A. TRADITIONAL MARKETS (exact amounts in {user_profile.get('currency_symbol', '$')}):
-      - VTI (Total Stock Market ETF)
-      - BND (Total Bond Market ETF)
-      - VXUS (International Stocks)
-   
-   B. CRYPTOCURRENCY CORE (exact amounts):
-      - Bitcoin (BTC) - Store of value
-      - Ethereum (ETH) - Smart contracts
-      - Solana (SOL) - High-performance blockchain
-   
-   C. SOLANA ECOSYSTEM DEEP DIVE (exact amounts):
-      
-      LIQUID STAKING:
-      - JitoSOL via Jito BAM - 8-9% APY with MEV rewards
-        * Explain: Jito captures MEV for higher yields
-        * JitoSOL remains liquid for DeFi use
-      
-      DEFI PROTOCOLS:
-      - Raydium (RAY) - Premier DEX, liquidity pools (15-30% APY)
-      - Jupiter (JUP) - Best swap aggregator, governance
-      - Kamino Finance - Automated strategies (20-40% APY)
-      
-      PRIVACY TOOLS (NOT AN INVESTMENT):
-      - Arcium SDK - Privacy layer for confidential transactions
-        * This is a TOOL/SERVICE to use, NOT a token to buy
-        * Purpose: Make transactions invisible on blockchain
-        * Use for large transfers between protocols
-        * Integration via SDK, not token purchase
-        * NO capital allocation needed
-   
-   D. ALTERNATIVES (exact amounts):
-      - VNQ (REITs)
-      - GLD (Gold)
-
-3. ADVANCED SOLANA STRATEGIES
-
-   JITO STAKING:
-   - Stake X amount of SOL through Jito BAM
-   - Receive JitoSOL (liquid staked token)
-   - Expected: 8.5% APY with MEV rewards
-   - Calculate annual passive income
-   
-   DEFI YIELDS:
-   - Raydium SOL-USDC pools: 20-25% APY
-   - Kamino automated vaults: 25-35% APY
-   
-   PRIVACY INTEGRATION:
-   - Use Arcium SDK (no investment needed)
-   - Enable for transactions over equivalent of $5,000
-   - Protects transaction privacy between protocols
-
-4. MONTHLY BREAKDOWN ({user_profile.get('currency_symbol', '$')}{user_profile['monthly']:,})
-   
-   Split exact amounts across:
-   - Traditional markets
-   - Core crypto (BTC, ETH, SOL)
-   - Solana ecosystem (stake via Jito, DeFi protocols)
-   - Alternatives
-
-5. MULTI-LAYER YIELD PROJECTIONS
-   
-   Layer 1 - JitoSOL staking: X * 8.5% APY
-   Layer 2 - DeFi yields: X * 25% APY average
-   Layer 3 - Traditional: X * 4% APY
-   
-   TOTAL ANNUAL PASSIVE INCOME: {user_profile.get('currency_symbol', '$')}X
-
-6. PORTFOLIO PROJECTIONS (5, 10, {user_profile['timeline']} years)
-   
-   Use these returns:
-   - Stocks: 10%, Bonds: 3%
-   - BTC: 15%, ETH: 12%, SOL: 25%
-   - JitoSOL: 33.5% (SOL appreciation + staking)
-   - DeFi (RAY, JUP): 30%
-   - Kamino: 30% APY
-   - REITs: 8%, Gold: 5%
-   
-   Show three scenarios: Conservative, Moderate, Aggressive
-
-7. RISK MANAGEMENT
-   
-   Warn about:
-   - Smart contract vulnerabilities
-   - Impermanent loss in liquidity pools
-   - Solana network risks
-   - Leverage risks in Kamino
-   - Market volatility
-
-8. EXECUTION GUIDE (Week by Week)
-   
-   Week 1: Foundation
-   - Set up Phantom or Solflare wallet
-   - Open CEX accounts (Coinbase, Kraken)
-   - Purchase initial SOL, BTC, ETH
-   
-   Week 2: Jito Staking
-   - Visit jito.network
-   - Connect wallet
-   - Stake SOL for JitoSOL
-   - Verify MEV rewards accumulating
-   
-   Week 3: DeFi Integration
-   - Visit raydium.io
-   - Provide liquidity to SOL-USDC pool
-   - Stake LP tokens for RAY rewards
-   
-   Week 4: Advanced Strategies
-   - Visit kamino.finance
-   - Deposit into automated vaults
-   - Set up Jupiter limit orders
-   
-   PRIVACY SETUP (Integrated Throughout):
-   - Visit arcium.io/docs
-   - Review SDK integration guide
-   - Enable Arcium privacy for large transfers
-   - Use when rebalancing between protocols
-   - No token purchase needed - it's a service
-   
-   Ongoing:
-   - Monitor positions weekly
-   - Compound DeFi yields monthly
-   - Rebalance quarterly
-   - Use Arcium for private large transfers
-
-9. WHY THIS APPROACH WORKS
-   
-   - Jito MEV advantage: 1-2% higher yields than standard staking
-   - DeFi multiplier: 3-4x returns vs passive holding
-   - Privacy tool: Arcium protects sensitive transactions
-   - All positions liquid: Can exit or reallocate quickly
-   - Diversified yields: Multiple income streams
-   - Risk balanced: Traditional markets provide stability
-
-10. PROTOCOL-SPECIFIC RECOMMENDATIONS
+    debug_info = []
+    debug_info.append(f"CWD: {os.getcwd()}")
     
-    JITO (jito.network):
-    - Allocation: X% of SOL holdings for staking
-    - Expected yield: 8.5% APY
-    - Benefits: MEV rewards, liquid staking token
-    
-    RAYDIUM (raydium.io):
-    - Allocation: {user_profile.get('currency_symbol', '$')}X
-    - Strategy: SOL-USDC concentrated liquidity
-    - Expected yield: 20-25% APY
-    - Benefits: Trading fees + RAY rewards
-    
-    KAMINO (kamino.finance):
-    - Allocation: {user_profile.get('currency_symbol', '$')}X
-    - Strategy: Automated leverage vaults
-    - Expected yield: 25-35% APY
-    - Risk: Liquidation possible with leverage
-    
-    JUPITER (jup.ag):
-    - Allocation: {user_profile.get('currency_symbol', '$')}X in JUP tokens
-    - Benefits: Best swap prices, governance
-    - Strategic: Hold for ecosystem exposure
-    
-    ARCIUM PRIVACY SDK (arcium.io):
-    - Allocation: ZERO (it's a tool, not an investment)
-    - Purpose: Privacy layer for confidential transactions
-    - Use Case: Shield large transfers from public view
-    - Implementation: SDK integration in wallet
-    - When to Use: Transfers over {user_profile.get('currency_symbol', '$')}5,000
-    - Cost: Small transaction fee only, no token needed
-    - Benefit: Complete transaction privacy on Solana
+    # Fallback: Manually read .env file if os.getenv fails
+    if not gemini_key:
+        try:
+            # Try multiple possible locations
+            candidates = [
+                Path(__file__).parent / '.env',
+                Path(os.getcwd()) / '.env',
+                Path('C:/Users/DELL/Documents/GoalWealth/.env')
+            ]
+            
+            for env_path in candidates:
+                debug_info.append(f"Trying: {env_path} (Exists: {env_path.exists()})")
+                if env_path.exists():
+                    try:
+                        # encoding='utf-8-sig' handles BOM if present
+                        with open(env_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                            content = f.read()
+                            # debug_info.append(f"File content length: {len(content)}")
+                            
+                            for line in content.splitlines():
+                                line = line.strip()
+                                if line.startswith('GEMINI_API_KEY='):
+                                    gemini_key = line.split('=', 1)[1].strip()
+                                    debug_info.append("Key found in file!")
+                                    break
+                    except Exception as e:
+                         debug_info.append(f"Read error on {env_path}: {e}")
+                if gemini_key:
+                    break
+        except Exception as e:
+            debug_info.append(f"Manual read error: {e}")
 
-BE EXTREMELY SPECIFIC with amounts in {user_profile.get('currency_symbol', '$')}.
-Emphasize ARCIUM IS A PRIVACY TOOL, NOT AN INVESTMENT.
-Explain both opportunities AND risks clearly.
-Make it actionable with exact protocols and steps.
-Show how Solana DeFi significantly boosts returns.
-
-Format clearly with headers, bullet points, and tables.
-"""
-    
-    try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt
-        )
+    if not gemini_key:
+        return f"Error: GEMINI_API_KEY not found. Debug Info: || {' | '.join(debug_info)}"
         
+    try:
+        # Construct the detailed prompt
+        prompt = f"""
+        You are an expert Certified Financial Planner (CFP) and Crypto Analyst. Create a comprehensive, professional investment plan for this user:
+        
+        USER PROFILE:
+        - Age: {user_profile['age']}
+        - Income: {user_profile['currency_symbol']}{user_profile['income']}
+        - Current Capital: {user_profile['currency_symbol']}{user_profile['capital']}
+        - Monthly Contribution: {user_profile['currency_symbol']}{user_profile['monthly']}
+        - Risk Tolerance: {user_profile['risk_tolerance']}
+        - Timeline: {user_profile['timeline']} years
+        - Goal: {user_profile['goal']}
+        
+        REQUIREMENTS:
+        1. **Asset Allocation**: precise % split between Traditional (Stocks/Bonds), Crypto, and Cash.
+        2. **Specific Recommendations**:
+           - Stocks: specific ETFs (VTI, VXUS, etc.)
+           - Crypto: specific breakup (BTC, ETH, SOL, Altcoins)
+           - Solana DeFi: specific protocols (Jito for liquid staking, Kamino for lending, Raydium for LP).
+           - Privacy: Mention 'Arcium' as a privacy computing layer for protecting transaction data.
+        3. **Strategy**: step-by-step execution plan.
+        4. **Risk Management**: clear warnings and hedging strategies.
+        
+        Format the response in clean Markdown with clear headers, bullet points, and usage of bold text for emphasis.
+        """
+
+        # Helper for generation with retry
+        def generate_with_retry(model_name, prompt):
+            genai.configure(api_key=gemini_key)
+            model = genai.GenerativeModel(model_name)
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    return model.generate_content(prompt)
+                except Exception as e:
+                    # Retry on Rate Limit (429) or Server Error (500+)
+                    if ("429" in str(e) or "403" in str(e) or "500" in str(e)) and attempt < max_retries - 1:
+                        wait_time = 5 * (attempt + 1)
+                        print(f"[{model_name}] Rate limit/Error hit. Retrying in {wait_time}s...")
+                        time.sleep(wait_time)
+                    else:
+                        raise e
+
+        # Model Priority List
+        # 1. Gemini 3 Flash (User Requested)
+        # 2. Gemini 2.0 Flash Exp (Proven availability)
+        models_to_try = ['gemini-3-flash-preview', 'gemini-2.0-flash-exp']
+        
+        response = None
+        import time
+        
+        last_error = None
+        
+        for model_name in models_to_try:
+            print(f"Attemping to use model: {model_name}...")
+            try:
+                response = generate_with_retry(model_name, prompt)
+                if response:
+                    print(f"Success with {model_name}!")
+                    break
+            except Exception as e:
+                print(f"Failed with {model_name}: {e}")
+                last_error = e
+                # Continue to next model
+        
+        if not response:
+            return f"Error: All models failed. Last error: {last_error}"
+            
         plan = response.text
         
         print("\n" + "="*70)
@@ -240,19 +145,7 @@ Format clearly with headers, bullet points, and tables.
         
     except Exception as e:
         print(f"ERROR: {e}")
-        print("Retrying with backup model...")
-        
-        try:
-            response = client.models.generate_content(
-                model='gemini-2.0-flash-exp',
-                contents=prompt
-            )
-            plan = response.text
-            print("Success with backup model!")
-            return plan
-        except Exception as e2:
-            print(f"Retry also failed: {e2}")
-            return None
+        return f"Error generating plan: {str(e)}"
 
 
 if __name__ == "__main__":
