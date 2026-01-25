@@ -6,28 +6,29 @@ from opik import track
 from pathlib import Path
 import time
 
-# Robust env loading (manual only, no dotenv lib needed)
-gemini_key = None
-try:
-    candidates = [
-        Path(__file__).parent / '.env',
-        Path(os.getcwd()) / '.env',
-        Path('C:/Users/DELL/Documents/GoalWealth/.env')
-    ]
-    for env_path in candidates:
-        if env_path.exists():
-            try:
-                # encoding='utf-8-sig' handles BOM if present
-                with open(env_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
-                    content = f.read()
-                    for line in content.splitlines():
-                        line = line.strip()
-                        if line.startswith('GEMINI_API_KEY='):
-                            gemini_key = line.split('=', 1)[1].strip()
-                            break
-            except: pass
-        if gemini_key: break
-except: pass
+# Robust env loading
+gemini_key = os.environ.get('GEMINI_API_KEY')
+if not gemini_key:
+    try:
+        candidates = [
+            Path(__file__).parent / '.env',
+            Path(os.getcwd()) / '.env',
+            Path('C:/Users/DELL/Documents/GoalWealth/.env')
+        ]
+        for env_path in candidates:
+            if env_path.exists():
+                try:
+                    # encoding='utf-8-sig' handles BOM if present
+                    with open(env_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                        content = f.read()
+                        for line in content.splitlines():
+                            line = line.strip()
+                            if line.startswith('GEMINI_API_KEY='):
+                                gemini_key = line.split('=', 1)[1].strip()
+                                break
+                except: pass
+            if gemini_key: break
+    except: pass
 
 @track(project_name="goalwealth", tags=["education"])
 def generate_guide(topic, user_level="beginner"):
@@ -73,9 +74,8 @@ def generate_guide(topic, user_level="beginner"):
 
         # Model Priority List (Validated for environment)
         models_to_try = [
-            'models/gemini-2.5-flash', 
-            'models/gemini-2.0-flash', 
-            'models/gemini-flash-latest'
+            'models/gemini-1.5-flash-latest', 
+            'models/gemini-2.0-flash-exp'
         ]
         
         response = None

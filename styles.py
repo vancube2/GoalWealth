@@ -428,10 +428,18 @@ import os
 def get_img_as_base64(file_path):
     """Reads an image and returns a base64 string"""
     try:
-        with open(file_path, "rb") as f:
+        # Use absolute path resolution for robustness in cloud environments
+        abs_path = os.path.abspath(file_path)
+        if not os.path.exists(abs_path):
+            # Try relative to the script location as a secondary fallback
+            abs_path = os.path.join(os.path.dirname(__file__), file_path)
+            
+        with open(abs_path, "rb") as f:
             data = f.read()
         return base64.b64encode(data).decode()
-    except Exception:
+    except Exception as e:
+        # Log to console for debugging in cloud logs
+        print(f"Error loading image {file_path}: {e}")
         return ""
 
 def create_hero_section():

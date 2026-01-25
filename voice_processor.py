@@ -4,24 +4,25 @@ from pathlib import Path
 import time
 import json
 
-# Try to load API key similarly to advisor_agent.py
-gemini_key = None
-try:
-    candidates = [
-        Path(__file__).parent / '.env',
-        Path(os.getcwd()) / '.env',
-        Path('C:/Users/DELL/Documents/GoalWealth/.env')
-    ]
-    for env_path in candidates:
-        if env_path.exists():
-            with open(env_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
-                for line in f:
-                    line = line.strip()
-                    if line.startswith('GEMINI_API_KEY='):
-                        gemini_key = line.split('=', 1)[1].strip()
-                        break
-        if gemini_key: break
-except: pass
+# Robust env loading
+gemini_key = os.environ.get('GEMINI_API_KEY')
+if not gemini_key:
+    try:
+        candidates = [
+            Path(__file__).parent / '.env',
+            Path(os.getcwd()) / '.env',
+            Path('C:/Users/DELL/Documents/GoalWealth/.env')
+        ]
+        for env_path in candidates:
+            if env_path.exists():
+                with open(env_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith('GEMINI_API_KEY='):
+                            gemini_key = line.split('=', 1)[1].strip()
+                            break
+            if gemini_key: break
+    except: pass
 
 def get_gemini_response(prompt, audio_data=None):
     """Generic helper for Gemini calls with optional audio"""

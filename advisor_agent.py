@@ -207,25 +207,26 @@ from pathlib import Path
 import time
 
 # Robust env loading
-gemini_key = None
-try:
-    candidates = [
-        Path(__file__).parent / '.env',
-        Path(os.getcwd()) / '.env',
-        Path('C:/Users/DELL/Documents/GoalWealth/.env')
-    ]
-    for env_path in candidates:
-        if env_path.exists():
-            try:
-                with open(env_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
-                    for line in f:
-                        line = line.strip()
-                        if line.startswith('GEMINI_API_KEY='):
-                            gemini_key = line.split('=', 1)[1].strip()
-                            break
-            except: pass
-        if gemini_key: break
-except: pass
+gemini_key = os.environ.get('GEMINI_API_KEY')
+if not gemini_key:
+    try:
+        candidates = [
+            Path(__file__).parent / '.env',
+            Path(os.getcwd()) / '.env',
+            Path('C:/Users/DELL/Documents/GoalWealth/.env')
+        ]
+        for env_path in candidates:
+            if env_path.exists():
+                try:
+                    with open(env_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
+                        for line in f:
+                            line = line.strip()
+                            if line.startswith('GEMINI_API_KEY='):
+                                gemini_key = line.split('=', 1)[1].strip()
+                                break
+                except: pass
+            if gemini_key: break
+    except: pass
 
 @track(project_name="goalwealth", tags=["advisor"])
 def get_investment_advice(question, user_context=None):
@@ -269,9 +270,8 @@ def get_investment_advice(question, user_context=None):
 
             # Model Priority List (Validated for environment)
             models_to_try = [
-                'models/gemini-2.5-flash', 
-                'models/gemini-2.0-flash', 
-                'models/gemini-flash-latest'
+                'models/gemini-1.5-flash-latest',
+                'models/gemini-2.0-flash-exp'
             ]
             
             for model_name in models_to_try:

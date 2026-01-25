@@ -26,10 +26,7 @@ if load_dotenv:
 @track(project_name="goalwealth", tags=["planner"])
 def create_investment_plan(user_profile):
     
-    gemini_key = os.getenv("GEMINI_API_KEY")
-    
-    debug_info = []
-    debug_info.append(f"CWD: {os.getcwd()}")
+    gemini_key = os.environ.get('GEMINI_API_KEY')
     
     # Fallback: Manually read .env file if os.getenv fails
     if not gemini_key:
@@ -42,29 +39,25 @@ def create_investment_plan(user_profile):
             ]
             
             for env_path in candidates:
-                debug_info.append(f"Trying: {env_path} (Exists: {env_path.exists()})")
                 if env_path.exists():
                     try:
                         # encoding='utf-8-sig' handles BOM if present
                         with open(env_path, 'r', encoding='utf-8-sig', errors='ignore') as f:
                             content = f.read()
-                            # debug_info.append(f"File content length: {len(content)}")
-                            
                             for line in content.splitlines():
                                 line = line.strip()
                                 if line.startswith('GEMINI_API_KEY='):
                                     gemini_key = line.split('=', 1)[1].strip()
-                                    debug_info.append("Key found in file!")
                                     break
                     except Exception as e:
-                         debug_info.append(f"Read error on {env_path}: {e}")
+                        pass
                 if gemini_key:
                     break
         except Exception as e:
-            debug_info.append(f"Manual read error: {e}")
+            pass
 
     if not gemini_key:
-        return f"Error: GEMINI_API_KEY not found. Debug Info: || {' | '.join(debug_info)}"
+        return "Error: GEMINI_API_KEY not found in environment variables or .env file."
     
     # Fetch live market context
     market_summary = "Market context currently unavailable."
@@ -138,16 +131,10 @@ def create_investment_plan(user_profile):
                     else:
                         raise e
 
-        # Model Priority List (Validated for this environment)
-        # 1. Gemini 2.5 Flash (Most advanced)
-        # 2. Gemini 2.0 Flash (Fast & Modern)
-        # 3. Gemini 2.0 Flash Lite (Reliable fallback)
-        # 4. Gemini 2.5 Pro
+        # Model Priority List (Validated for environment)
         models_to_try = [
-            'models/gemini-2.5-flash', 
-            'models/gemini-2.0-flash', 
-            'models/gemini-2.0-flash-lite', 
-            'models/gemini-2.5-pro'
+            'models/gemini-1.5-flash-latest', 
+            'models/gemini-2.0-flash-exp'
         ]
         
         response = None
