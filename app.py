@@ -60,6 +60,7 @@ with st.sidebar:
     ">
         <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #fff;">PROFILE</h3>
         <p style="margin: 0; font-size: 0.85rem; color: #94A3B8;">Customize your parameters</p>
+        <div style="margin-top: 1rem; font-size: 0.75rem; color: #10B981; font-family: 'JetBrains Mono';">● CORE UPDATED [JAN 25]</div>
     </div>
     """, unsafe_allow_html=True)
     
