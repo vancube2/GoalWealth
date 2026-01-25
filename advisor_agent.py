@@ -240,13 +240,15 @@ def get_investment_advice(question, user_context=None):
             context_str = f"Age {user_context.get('age', 30)}, Risk: {user_context.get('risk_tolerance', 'Medium')}, Goal: {user_context.get('goal', 'Wealth Building')}"
             
             prompt = f"""
-            You are an expert financial advisor specializing in Crypto (Solana ecosystem) and Traditional Finance.
+            You are a Brilliant Financial Advisor specializing in Global Assets, Commodities, and Crypto.
             User Context: {context_str}
             
             User Question: "{question}"
             
-            Provide a short, professional, and actionable answer.
-            If the user asks about specific Solana attributes (Jito, Raydium), provide accurate DeFi details.
+            Provide a deep, professional, and actionable answer.
+            If the user asks about global markets (REITs, Gold, Oil), provide accurate macro details.
+            If asking about Solana (Jito, Raydium, Kamino), provide specific alpha and yield data.
+            Focus on maximizing investor profitability.
             """
             
             # Helper for generation with retry
@@ -265,8 +267,12 @@ def get_investment_advice(question, user_context=None):
                         else:
                             raise e
 
-            # Model Priority List
-            models_to_try = ['gemini-3-flash-preview', 'gemini-2.0-flash-exp']
+            # Model Priority List (Validated for environment)
+            models_to_try = [
+                'models/gemini-2.5-flash', 
+                'models/gemini-2.0-flash', 
+                'models/gemini-flash-latest'
+            ]
             
             for model_name in models_to_try:
                 try:

@@ -40,15 +40,18 @@ def generate_guide(topic, user_level="beginner"):
     try:
         # Construct Prompt
         prompt = f"""
-        You are an expert crypto educator. Write a clear, concise guide on "{topic}" for a {user_level} level investor.
+        You are a PhD-level Financial Strategist and Elite Crypto Educator. 
+        Write a brilliant, deep-dive guide on "{topic}" for a {user_level} level investor.
+        Focus on real-world profitability, advanced risk-adjusted returns, and actionable brilliance.
         
         Structure:
-        1. **What is it?** (Simple definition)
-        2. **How it works** (Step-by-step)
-        3. **Risks & Rewards** (Bullet points)
-        4. **Actionable Steps** (How to start)
+        1. **Executive Summary** (Deep strategic overview)
+        2. **Core Mechanics** (How it truly works at a professional level)
+        3. **Profitability Analysis** (How users can actually make money)
+        4. **Advanced Risk Mitigation** (Professional hedging and stop-loss thinking)
+        5. **Tactical Action Steps** (Specific steps to execute NOW)
         
-        Keep it under 500 words. Use Markdown formatting.
+        Use Markdown formatting with bold text for high-impact insights.
         """
         
         # Helper for generation with retry
@@ -68,8 +71,12 @@ def generate_guide(topic, user_level="beginner"):
                     else:
                         raise e
 
-        # Model Priority List
-        models_to_try = ['gemini-3-flash-preview', 'gemini-2.0-flash-exp']
+        # Model Priority List (Validated for environment)
+        models_to_try = [
+            'models/gemini-2.5-flash', 
+            'models/gemini-2.0-flash', 
+            'models/gemini-flash-latest'
+        ]
         
         response = None
         last_error = None
@@ -91,15 +98,35 @@ def generate_guide(topic, user_level="beginner"):
         return f"Guide generation unavailable ({str(e)}). Please check API key."
 
 
-# Pre-generate some guides for the app
 AVAILABLE_GUIDES = {
-    "Jito Staking": "jito-staking",
-    "Raydium Liquidity Pools": "raydium-liquidity", 
-    "Kamino Vaults": "kamino-vaults",
-    "Dollar-Cost Averaging": "dca",
-    "Impermanent Loss": "impermanent-loss",
-    "Risk Management": "risk-management",
-    "Portfolio Rebalancing": "rebalancing"
+    # Solana DeFi
+    "Jito Staking Alpha": "jito-staking",
+    "Raydium Liquidity Mining": "raydium-liquidity", 
+    "Kamino Lending Vaults": "kamino-vaults",
+    "Orca Whirlpools": "orca-whirlpools",
+    "Jupiter Aggregator Strategy": "jupiter-aggregator",
+    
+    # Crypto Concepts
+    "Impermanent Loss Explained": "impermanent-loss",
+    "Smart Contract Security": "security",
+    "Yield Farming Strategies": "yield-farming",
+    "DCA (Dollar Cost Averaging)": "dca",
+    "Hardware Wallet Security": "wallets",
+    
+    # Global Finance & Wealth
+    "Compound Interest Math": "compound-growth",
+    "Tax-Loss Harvesting": "tax-loss-harvesting",
+    "Global REITs (Real Estate)": "reits",
+    "Commodity Supercycles": "commodities",
+    "Index Fund Mastery": "index-funds",
+    "Dividend Growth Strategy": "dividends",
+    
+    # Risk & Psychology
+    "Portfolio Risk Management": "risk-management",
+    "Rebalancing Tactics": "rebalancing",
+    "Macro Portfolio Hedging": "hedging",
+    "Trading Psychology": "psychology",
+    "Fundamental Analysis 101": "fundamental-analysis"
 }
 
 

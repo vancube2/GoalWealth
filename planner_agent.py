@@ -1,28 +1,30 @@
 import google.generativeai as genai
 import os
-from dotenv import load_dotenv
-from opik import track
+
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    load_dotenv = None
+
+try:
+    from opik import track
+except ImportError:
+    def track(*args, **kwargs):
+        return lambda f: f
 
 from pathlib import Path
+try:
+    from live_data import get_live_market_data, get_defi_yields
+except ImportError:
+    get_live_market_data = None
+    get_defi_yields = None
+
 env_path = Path(__file__).parent / '.env'
-load_dotenv(dotenv_path=env_path)
+if load_dotenv:
+    load_dotenv(dotenv_path=env_path)
 
 @track(project_name="goalwealth", tags=["planner"])
 def create_investment_plan(user_profile):
-    """
-    Advanced Multi-Channel Financial Planner with Deep Solana Ecosystem Integration
-    
-    Includes:
-    - Traditional markets (stocks, bonds, ETFs)
-    - Crypto (Bitcoin, Solana ecosystem, Ethereum)
-    - Solana DeFi (Jito, Raydium, Jupiter, Kamino)
-    - Privacy tools (Arcium SDK)
-    - Alternatives (REITs, Gold)
-    """
-    
-    print("\n" + "="*70)
-    print("CREATING YOUR ADVANCED MULTI-CHANNEL INVESTMENT PLAN...")
-    print("="*70)
     
     gemini_key = os.getenv("GEMINI_API_KEY")
     
@@ -63,11 +65,39 @@ def create_investment_plan(user_profile):
 
     if not gemini_key:
         return f"Error: GEMINI_API_KEY not found. Debug Info: || {' | '.join(debug_info)}"
-        
+    
+    # Fetch live market context
+    market_summary = "Market context currently unavailable."
+    yield_summary = "Yield context currently unavailable."
+    
+    try:
+        if get_live_market_data and get_defi_yields:
+            market_data = get_live_market_data()
+            defi_yields = get_defi_yields()
+            
+            market_summary = "\n".join([f"- {s}: ${d['price']:,.2f} ({d['change_24h']:+.2f}%)" for s, d in list(market_data.items())[:10]])
+            yield_summary = "\n".join([f"- {p}: {y['apy']}% APY (TVL: {y['tvl']})" for p, y in defi_yields.items()])
+    except Exception as e:
+        print(f"Data Fetch Error: {e}")
+
     try:
         # Construct the detailed prompt
         prompt = f"""
-        You are an expert Certified Financial Planner (CFP) and Crypto Analyst. Create a comprehensive, professional investment plan for this user:
+        You are a world-class Multi-Asset Quantitative Strategist. 
+        Your mission is to maximize total portfolio profitability through intelligent global diversification.
+        YOU MUST USE THE CURRENT MARKET CONDITIONS PROVIDED BELOW TO IDENTIFY THE HIGHEST CONVICTION OPPORTUNITIES.
+
+        CRITICAL CONSTRAINTS:
+        - DO NOT focus solely on Solana or Crypto. You are a broad-market strategist.
+        - DO NOT use formal headers (Client Name, Prepared By, etc.).
+        - DO NOT use generic closing cliches or sign-offs (e.g., "This framework...", "Sincerely", "optimally balancing Solana").
+        - Output MUST be direct, high-density, and focused on pure strategic alpha.
+
+        GLOBAL MARKET CONTEXT:
+        {market_summary}
+
+        SELECT DEFI YIELD ALAS (Only if competitive):
+        {yield_summary}
         
         USER PROFILE:
         - Age: {user_profile['age']}
@@ -79,16 +109,16 @@ def create_investment_plan(user_profile):
         - Goal: {user_profile['goal']}
         
         REQUIREMENTS:
-        1. **Asset Allocation**: precise % split between Traditional (Stocks/Bonds), Crypto, and Cash.
-        2. **Specific Recommendations**:
-           - Stocks: specific ETFs (VTI, VXUS, etc.)
-           - Crypto: specific breakup (BTC, ETH, SOL, Altcoins)
-           - Solana DeFi: specific protocols (Jito for liquid staking, Kamino for lending, Raydium for LP).
-           - Privacy: Mention 'Arcium' as a privacy computing layer for protecting transaction data.
-        3. **Strategy**: step-by-step execution plan.
-        4. **Risk Management**: clear warnings and hedging strategies.
+        1. **Global Multi-Asset Allocation**: Provide a precise % split between Traditional Equities (Global/US), Commodities (Gold/Oil), Real Estate (REITs), Crypto, and Cash. Explain the macro-economic reasoning for this allocation NOW.
+        2. **High-Conviction Recommendations**:
+           - Equities & REITs: Specific tickers (VTI, VNQ, VT, etc.) based on market performance.
+           - Commodities: Exposure strategies (USO for Oil, GDX for Gold Miners).
+           - Crypto & Solana DeFi: Precise allocation (BTC, ETH, SOL) and target specific high-yield protocols (Kamino, Jito, Raydium) to maximize alpha.
+           - Privacy: Briefly note how 'Arcium' protects transaction data integrity during global execution.
+3. **Total Wealth Optimization Strategy**: How to compound across all asset classes and manage currency/inflation risks.
+        4. **Tactical Risk Management**: Professional-grade risk triggers and rebalancing bands based on current asset volatility.
         
-        Format the response in clean Markdown with clear headers, bullet points, and usage of bold text for emphasis.
+        Format as a brilliant, high-density financial strategy in Markdown. Use Bold text for key profitability triggers.
         """
 
         # Helper for generation with retry
@@ -108,16 +138,24 @@ def create_investment_plan(user_profile):
                     else:
                         raise e
 
-        # Model Priority List
-        # 1. Gemini 3 Flash (User Requested)
-        # 2. Gemini 2.0 Flash Exp (Proven availability)
-        models_to_try = ['gemini-3-flash-preview', 'gemini-2.0-flash-exp']
+        # Model Priority List (Validated for this environment)
+        # 1. Gemini 2.5 Flash (Most advanced)
+        # 2. Gemini 2.0 Flash (Fast & Modern)
+        # 3. Gemini 2.0 Flash Lite (Reliable fallback)
+        # 4. Gemini 2.5 Pro
+        models_to_try = [
+            'models/gemini-2.5-flash', 
+            'models/gemini-2.0-flash', 
+            'models/gemini-2.0-flash-lite', 
+            'models/gemini-2.5-pro'
+        ]
         
         response = None
         import time
         
         last_error = None
         
+        errors = []
         for model_name in models_to_try:
             print(f"Attemping to use model: {model_name}...")
             try:
@@ -127,11 +165,12 @@ def create_investment_plan(user_profile):
                     break
             except Exception as e:
                 print(f"Failed with {model_name}: {e}")
-                last_error = e
+                errors.append(f"{model_name}: {str(e)}")
                 # Continue to next model
         
         if not response:
-            return f"Error: All models failed. Last error: {last_error}"
+            error_details = " | ".join(errors)
+            return f"Error: All models failed. Details: {error_details}"
             
         plan = response.text
         

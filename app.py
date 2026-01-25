@@ -473,8 +473,11 @@ if active_tab == "DASHBOARD":
         
     elif 'plan_error' in st.session_state and st.session_state['plan_error']:
         st.markdown("---")
-        st.error("Request Timed Out")
-        st.caption("The AI agent took too long to respond. Please try again.")
+        st.error("Plan Generation Failed")
+        st.caption(f"Error details: {st.session_state['plan_error']}")
+        if st.button("Retry Generation"):
+            st.session_state.pop('plan_error', None)
+            st.rerun()
 
 # TAB 2: Portfolio Tracker
 elif active_tab == "PORTFOLIO":

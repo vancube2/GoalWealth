@@ -15,7 +15,7 @@ def get_live_market_data():
         'AMZN': 'AMZN', 'GOOGL': 'GOOGL', 'META': 'META', 'NFLX': 'NFLX',
         'AMD': 'AMD', 'INTC': 'INTC', 'JPM': 'JPM', 'GS': 'GS',
         'XOM': 'XOM', 'CVX': 'CVX', 'BRK-B': 'BRK-B', 'SPY': 'SPY',
-        'QQQ': 'QQQ', 'DIA': 'DIA'
+        'QQQ': 'QQQ', 'DIA': 'DIA', 'VNQ': 'VNQ', 'USO': 'USO', 'GDX': 'GDX', 'VT': 'VT'
     }
     
     data = {}
@@ -91,7 +91,7 @@ def _get_mock_data(symbol):
         'META': 560, 'NFLX': 680, 'AMD': 165,
         'INTC': 25, 'JPM': 230, 'GS': 520,
         'XOM': 115, 'CVX': 155, 'BRK-B': 465,
-        'SPY': 600, 'QQQ': 510, 'DIA': 435
+        'SPY': 600, 'QQQ': 510, 'DIA': 435, 'VNQ': 85, 'USO': 75, 'GDX': 35, 'VT': 110
     }
     
     # Generate realistic 30-day history
