@@ -210,6 +210,208 @@ def apply_custom_styles():
     ::-webkit-scrollbar-thumb:hover {
         background: rgba(255,255,255,0.1);
     }
+    /* Voice Recorder Customization */
+    .stMicRecorder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .stMicRecorder button {
+        background: rgba(59, 130, 246, 0.1) !important;
+        border: 1px solid rgba(59, 130, 246, 0.3) !important;
+        color: #60A5FA !important;
+        border-radius: 50% !important;
+        width: 50px !important;
+        height: 50px !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stMicRecorder button:hover {
+        background: rgba(59, 130, 246, 0.2) !important;
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Small Mic for Chat */
+    [data-testid="column"] .stMicRecorder button {
+        width: 40px !important;
+        height: 40px !important;
+        margin-top: 5px;
+    }
+    /* Market Ticker Marquee */
+    .market-ticker-container {
+        width: 100%;
+        overflow: hidden;
+        background: rgba(15, 23, 42, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 0;
+        margin: 1.5rem 0;
+        backdrop-filter: blur(10px);
+        white-space: nowrap;
+        position: relative;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        border-radius: 8px;
+    }
+
+    /* DeFi Yield Desk */
+    .defi-yield-container {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 380px; /* Adjusted height for vertical marquee */
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .defi-yield-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 0.75rem;
+    }
+
+    .yield-scroll-area {
+        display: flex;
+        flex-direction: column;
+        animation: yield-scroll 25s linear infinite;
+    }
+
+    .yield-scroll-area:hover {
+        animation-play-state: paused;
+    }
+
+    .yield-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .yield-card-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .yield-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        background: rgba(59, 130, 246, 0.1);
+    }
+
+    .yield-card:hover {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
+        transform: scale(1.02);
+    }
+
+    .yield-name {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .yield-apy {
+        color: #10B981;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 800;
+        font-size: 1.1rem;
+    }
+
+    .yield-tvl {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    @keyframes yield-scroll {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-50%); }
+    }
+
+    .market-ticker {
+        display: inline-flex;
+        animation: marquee 120s linear infinite; /* Slower for readability with many items */
+        align-items: center;
+        width: max-content;
+    }
+
+    .ticker-item {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 4rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.9rem;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+    }
+
+    .ticker-icon {
+        width: 18px;
+        height: 18px;
+        margin-right: 0.75rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    .ticker-symbol {
+        color: var(--text-primary);
+        font-weight: 700;
+        margin-right: 0.75rem;
+    }
+
+    .ticker-price {
+        color: #fff;
+        margin-right: 0.75rem;
+        opacity: 0.9;
+    }
+
+    .ticker-change {
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+    }
+
+    .change-up { 
+        color: #10B981 !important; 
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+    .change-down { 
+        color: #EF4444 !important; 
+        text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    }
+
+    @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
     
     </style>
     """, unsafe_allow_html=True)

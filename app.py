@@ -3,6 +3,9 @@ from planner_agent import create_investment_plan
 from styles import apply_custom_styles, create_success_banner, create_hero_section, create_stat_card, create_metric_card_large, get_section_background
 import time
 import plotly.graph_objects as go
+from streamlit_mic_recorder import mic_recorder
+from voice_processor import extract_profile_from_voice, process_voice_advisor_query, transcribe_voice
+from live_data import get_live_market_data, get_defi_yields, get_portfolio_growth_projection
 
 # Apply professional financial dashboard styling
 apply_custom_styles()
@@ -60,13 +63,73 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     
+    # Voice Setup Trigger
+    st.markdown("##### 🎙️ Voice Setup")
+    voice_profile = mic_recorder(
+        start_prompt="Start Recording",
+        stop_prompt="Stop Recording",
+        just_once=True,
+        use_container_width=True,
+        key="voice_profile"
+    )
+    
+    if voice_profile and 'bytes' in voice_profile:
+        with st.spinner("Analyzing audio..."):
+            extracted = extract_profile_from_voice(voice_profile['bytes'])
+            
+            if extracted and "error" not in extracted:
+                updated = False
+                if extracted.get('age'): 
+                    st.session_state['age_val'] = int(extracted['age'])
+                    st.session_state['age_input'] = int(extracted['age'])
+                    updated = True
+                if extracted.get('income'): 
+                    st.session_state['income_val'] = int(extracted['income'])
+                    st.session_state['income_input'] = int(extracted['income'])
+                    updated = True
+                if extracted.get('capital'): 
+                    st.session_state['capital_val'] = int(extracted['capital'])
+                    st.session_state['capital_input'] = int(extracted['capital'])
+                    updated = True
+                if extracted.get('monthly'): 
+                    st.session_state['monthly_val'] = int(extracted['monthly'])
+                    st.session_state['monthly_input'] = int(extracted['monthly'])
+                    updated = True
+                if extracted.get('timeline'): 
+                    st.session_state['timeline_val'] = int(extracted['timeline'])
+                    st.session_state['timeline_input'] = int(extracted['timeline'])
+                    updated = True
+                if extracted.get('risk_tolerance'): 
+                    st.session_state['risk_val'] = extracted['risk_tolerance']
+                    st.session_state['risk_input'] = extracted['risk_tolerance']
+                    updated = True
+                if extracted.get('goal'): 
+                    st.session_state['goal_val'] = extracted['goal']
+                    st.session_state['goal_input'] = extracted['goal']
+                    updated = True
+                
+                if updated:
+                    st.success("Profile updated via voice!")
+                    st.rerun()
+                else:
+                    st.warning("Voice detected but no profile fields were found. Try saying: 'I am 30 years old with 50000 income'")
+            else:
+                error_msg = extracted.get("error") if extracted else "Unknown processing error"
+                st.error(f"Voice Error: {error_msg}")
+    
+    st.markdown("###")
+    
     # Personal Information
     st.caption("PERSONAL DETAILS")
     col1, col2 = st.columns(2)
     with col1:
-        age = st.number_input("Age", min_value=18, max_value=80, value=30)
+        age_val = st.session_state.get('age_val', 30)
+        age = st.number_input("Age", min_value=18, max_value=80, value=age_val, key="age_input")
     with col2:
-        risk_tolerance = st.selectbox("Risk", ["Low", "Medium", "High"], index=2)
+        risk_opts = ["Low", "Medium", "High"]
+        risk_val = st.session_state.get('risk_val', "High")
+        risk_idx = risk_opts.index(risk_val) if risk_val in risk_opts else 1
+        risk_tolerance = st.selectbox("Risk", risk_opts, index=risk_idx, key="risk_input")
     
     # Financial Details
     st.markdown("###")
@@ -80,38 +143,46 @@ with st.sidebar:
     currency_symbol = currency.split("(")[1].split(")")[0]
     currency_code = currency.split(" ")[0]
     
+    income_val = st.session_state.get('income_val', 60000)
     income = st.number_input(
         f"Annual Income", 
         min_value=0, 
         max_value=10000000, 
-        value=60000, 
+        value=income_val, 
         step=5000,
-        format="%d"
+        format="%d",
+        key="income_input"
     )
     
+    capital_val = st.session_state.get('capital_val', 10000)
     capital = st.number_input(
         f"Starting Capital", 
         min_value=0, 
         max_value=100000000, 
-        value=10000, 
+        value=capital_val, 
         step=1000,
-        format="%d"
+        format="%d",
+        key="capital_input"
     )
     
+    monthly_val = st.session_state.get('monthly_val', 500)
     monthly = st.number_input(
         f"Monthly Investment", 
         min_value=0, 
         max_value=1000000, 
-        value=500, 
+        value=monthly_val, 
         step=100,
-        format="%d"
+        format="%d",
+        key="monthly_input"
     )
     
     # Investment Goals
     st.markdown("###")
     st.caption("GOALS")
-    timeline = st.slider("Timeline (years)", min_value=1, max_value=50, value=30)
-    goal = st.text_area("Primary Goal", "Build wealth for retirement", height=80)
+    timeline_val = st.session_state.get('timeline_val', 30)
+    timeline = st.slider("Timeline (years)", min_value=1, max_value=50, value=timeline_val, key="timeline_input")
+    goal_val = st.session_state.get('goal_val', "Build wealth for retirement")
+    goal = st.text_area("Primary Goal", goal_val, height=80, key="goal_input")
     
     # Opportunities
     st.markdown("---")
@@ -176,7 +247,43 @@ if active_tab == "DASHBOARD":
     col1, col2 = st.columns([2, 1])
     with col1:
         st.markdown("### Market Overview")
-    with col2:
+        
+        # Expanded Asset Icons Mapping
+        ASSET_ICONS = {
+            'BTC': '₿', 'ETH': 'Ξ', 'SOL': '◎', 'BNB': '🔶', 'XRP': '✖️', 'ADA': '💠',
+            'AVAX': '🔺', 'LINK': '🔗', 'DOT': '⚪',
+            'VTI': '📊', 'GOLD': '🟡', 'BONDS': '📜',
+            'AAPL': '🍎', 'NVDA': '🟩', 'TSLA': '⚡', 'MSFT': '💻',
+            'AMZN': '📦', 'GOOGL': '🔍', 'META': '♾️', 'NFLX': '🎬',
+            'AMD': '❤️', 'INTC': '🔵', 'JPM': '🏦', 'GS': '💰',
+            'XOM': '⛽', 'CVX': '🛢️', 'BRK-B': '🏘️', 'SPY': '📈',
+            'QQQ': '💡', 'DIA': '💎'
+        }
+        
+        # Consistent Live Market Ticker
+        live_market = get_live_market_data()
+        ticker_items = []
+        for symbol, details in live_market.items():
+            change_class = "change-up" if details['change_24h'] >= 0 else "change-down"
+            arrow = "▲" if details['change_24h'] >= 0 else "▼"
+            icon = ASSET_ICONS.get(symbol, '💰')
+            
+            item_html = (
+                f'<div class="ticker-item">'
+                f'<div class="ticker-icon">{icon}</div>'
+                f'<span class="ticker-symbol">{symbol}</span>'
+                f'<span class="ticker-price">${details["price"]:,.2f}</span>'
+                f'<span class="ticker-change {change_class}">{arrow} {abs(details["change_24h"]):.2f}%</span>'
+                f'</div>'
+            )
+            ticker_items.append(item_html)
+        
+        # Repeat items to create a gapless infinite loop
+        repeated_content = "".join(ticker_items) + "".join(ticker_items)
+        full_ticker_html = f'<div class="market-ticker-container"><div class="market-ticker">{repeated_content}</div></div>'
+        st.markdown(full_ticker_html, unsafe_allow_html=True)
+        
+        st.markdown("#### Performance")
         st.markdown(f"<div style='text-align:right; color:#94A3B8; font-family:JetBrains Mono;'>{currency_code} Markets Open</div>", unsafe_allow_html=True)
     
     from live_data import get_live_market_data, get_defi_yields, get_portfolio_growth_projection
@@ -236,36 +343,40 @@ if active_tab == "DASHBOARD":
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        st.markdown("#### Best Yields (APY)")
+        st.markdown("#### Live Yield Desk")
         
-        defi_yields = get_defi_yields()
+        defi_results = get_defi_yields()
         
-        protocols = list(defi_yields.keys())
-        apys = [defi_yields[p]['apy'] for p in protocols]
+        # DeFi Icons Mapping
+        DEFI_ICONS = {
+            'Jito Staking': '🥩', 'Raydium Pools': '🔆', 'Kamino Vaults': '⚡',
+            'Marinade Native': '💧', 'Orca Whirlpools': '🐋', 'Solend Lending': '🏦',
+            'Marginfi Yield': '📉'
+        }
         
-        fig = go.Figure(data=[
-            go.Bar(
-                x=protocols,
-                y=apys,
-                marker=dict(
-                    color=apys,
-                    colorscale='Viridis',
-                    showscale=False,
-                    line=dict(color='rgba(255,255,255,0.1)', width=1)
-                ),
-                text=[f"{apy}%" for apy in apys],
-                textposition='auto',
-                textfont=dict(color='white')
+        yield_items = []
+        for protocol, info in defi_results.items():
+            icon = DEFI_ICONS.get(protocol, '💰')
+            item_html = (
+                f'<div class="yield-card">'
+                f'<div class="yield-card-left">'
+                f'<div class="yield-icon">{icon}</div>'
+                f'<div><div class="yield-name">{protocol}</div><div class="yield-tvl">TVL: {info["tvl"]}</div></div>'
+                f'</div>'
+                f'<div class="yield-apy">{info["apy"]}%</div>'
+                f'</div>'
             )
-        ])
+            yield_items.append(item_html)
+            
+        # Repeat for continuous vertical loop
+        repeated_yields = "".join(yield_items) + "".join(yield_items)
         
-        layout = get_dark_chart_layout()
-        layout['yaxis']['title'] = 'APY (%)'
-        layout['xaxis']['showgrid'] = False
-        
-        fig.update_layout(**layout)
-        
-        st.plotly_chart(fig, use_container_width=True)
+        full_defi_html = (
+            f'<div class="defi-yield-container">'
+            f'<div class="yield-scroll-area">{repeated_yields}</div>'
+            f'</div>'
+        )
+        st.markdown(full_defi_html, unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -418,8 +529,28 @@ elif active_tab == "AI ADVISOR":
             with st.chat_message("assistant", avatar="assets/ai_avatar.png"):
                 st.write(chat['answer'])
     
-    user_question = st.chat_input("Ask about your portfolio, specific assets, or market trends...")
+    col1, col2 = st.columns([6, 1])
+    with col1:
+        user_question = st.chat_input("Ask about your portfolio, specific assets, or market trends...")
+    with col2:
+        voice_query = mic_recorder(
+            start_prompt="🎤",
+            stop_prompt="🛑",
+            just_once=True,
+            key="voice_query"
+        )
     
+    if voice_query and 'bytes' in voice_query:
+        with st.spinner("Processing voice..."):
+            answer = process_voice_advisor_query(voice_query['bytes'], {
+                'age': age, 'risk_tolerance': risk_tolerance, 'goal': goal
+            })
+            if answer and not answer.startswith("Sorry"):
+                st.session_state.chat_history.append({'question': "🎤 Voice Query", 'answer': answer})
+                st.rerun()
+            else:
+                st.error(answer or "Failed to process voice query.")
+
     if user_question:
         with chat_container:
             with st.chat_message("user"):

@@ -7,10 +7,15 @@ from datetime import datetime, timedelta
 def get_live_market_data():
     """Get live market data using yfinance with caching"""
     tickers = {
-        'BTC': 'BTC-USD',
-        'ETH': 'ETH-USD',
-        'SOL': 'SOL-USD',
-        'VTI': 'VTI'  # Vanguard Total Stock Market ETF for S&P representation
+        'BTC': 'BTC-USD', 'ETH': 'ETH-USD', 'SOL': 'SOL-USD',
+        'BNB': 'BNB-USD', 'XRP': 'XRP-USD', 'ADA': 'ADA-USD',
+        'AVAX': 'AVAX-USD', 'LINK': 'LINK-USD', 'DOT': 'DOT-USD',
+        'VTI': 'VTI', 'GOLD': 'GC=F', 'BONDS': 'TLT',
+        'AAPL': 'AAPL', 'NVDA': 'NVDA', 'TSLA': 'TSLA', 'MSFT': 'MSFT',
+        'AMZN': 'AMZN', 'GOOGL': 'GOOGL', 'META': 'META', 'NFLX': 'NFLX',
+        'AMD': 'AMD', 'INTC': 'INTC', 'JPM': 'JPM', 'GS': 'GS',
+        'XOM': 'XOM', 'CVX': 'CVX', 'BRK-B': 'BRK-B', 'SPY': 'SPY',
+        'QQQ': 'QQQ', 'DIA': 'DIA'
     }
     
     data = {}
@@ -76,7 +81,18 @@ import random
 
 def _get_mock_data(symbol):
     """Fallback mock data with realistic simulation"""
-    base_prices = {'BTC': 65000, 'ETH': 3500, 'SOL': 140, 'VTI': 260}
+    base_prices = {
+        'BTC': 102000, 'ETH': 2800, 'SOL': 180, 
+        'BNB': 650, 'XRP': 2.8, 'ADA': 1.1,
+        'AVAX': 45, 'LINK': 22, 'DOT': 9,
+        'VTI': 305, 'GOLD': 2850, 'BONDS': 95,
+        'AAPL': 240, 'NVDA': 148, 'TSLA': 365,
+        'MSFT': 420, 'AMZN': 210, 'GOOGL': 195,
+        'META': 560, 'NFLX': 680, 'AMD': 165,
+        'INTC': 25, 'JPM': 230, 'GS': 520,
+        'XOM': 115, 'CVX': 155, 'BRK-B': 465,
+        'SPY': 600, 'QQQ': 510, 'DIA': 435
+    }
     
     # Generate realistic 30-day history
     history = []
@@ -108,25 +124,92 @@ def _get_mock_data(symbol):
         'history': history
     }
 
+import requests
+
 def get_defi_yields():
-    """Get current DeFi yields (Mock for now as authentic source requires specialized API)"""
-    return {
-        'Jito Staking': {
-            'apy': 7.8,
-            'tvl': '1.8B',
-            'history': [7.5, 7.6, 7.7, 7.8, 7.8, 7.9, 7.8]
-        },
-        'Raydium Pools': {
-            'apy': 18.2,
-            'tvl': '650M',
-            'history': [16.2, 17.1, 18.0, 18.2, 18.4, 18.1, 18.2]
-        },
-        'Kamino Vaults': {
-            'apy': 24.5,
-            'tvl': '410M',
-            'history': [22.5, 23.2, 24.0, 24.5, 25.1, 24.8, 24.5]
+    """Get current DeFi yields from DefiLlama API"""
+    try:
+        # Fetch all yields from DefiLlama
+        response = requests.get("https://yields.llama.fi/pools", timeout=10)
+        response.raise_for_status()
+        pools = response.json()['data']
+        
+        results = {
+            'Jito Staking': {'apy': 7.8, 'tvl': '1.8B'},
+            'Raydium Pools': {'apy': 18.2, 'tvl': '650M'},
+            'Kamino Vaults': {'apy': 24.5, 'tvl': '410M'},
+            'Marinade Native': {'apy': 7.5, 'tvl': '1.2B'},
+            'Orca Whirlpools': {'apy': 32.1, 'tvl': '380M'},
+            'Solend Lending': {'apy': 12.4, 'tvl': '220M'},
+            'Marginfi Yield': {'apy': 14.2, 'tvl': '450M'}
         }
-    }
+        
+        # Jito (JitoSOL)
+        jito_pool = next((p for p in pools if p['project'] == 'jito' and p['symbol'] == 'JITOSOL'), None)
+        if jito_pool:
+            results['Jito Staking'] = {
+                'apy': round(float(jito_pool['apy']), 2),
+                'tvl': f"${jito_pool['tvlUsd']/1e9:.1f}B"
+            }
+            
+        # Raydium (Highest SOL pool)
+        ray_pool = next((p for p in pools if p['project'] == 'raydium' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e6), None)
+        if ray_pool:
+            results['Raydium Pools'] = {
+                'apy': round(float(ray_pool['apy']), 2),
+                'tvl': f"${ray_pool['tvlUsd']/1e6:.1f}M"
+            }
+            
+        # Kamino (Highest SOL pool)
+        kamino_pool = next((p for p in pools if p['project'] == 'kamino' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e6), None)
+        if kamino_pool:
+            results['Kamino Vaults'] = {
+                'apy': round(float(kamino_pool['apy']), 2),
+                'tvl': f"${kamino_pool['tvlUsd']/1e6:.1f}M"
+            }
+
+        # Marinade (mSOL)
+        mnd_pool = next((p for p in pools if p['project'] == 'marinade' and p['symbol'] == 'MSOL'), None)
+        if mnd_pool:
+            results['Marinade Native'] = {
+                'apy': round(float(mnd_pool['apy']), 2),
+                'tvl': f"${mnd_pool['tvlUsd']/1e9:.1f}B"
+            }
+
+        # Orca
+        orca_pool = next((p for p in pools if p['project'] == 'orca' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e6), None)
+        if orca_pool:
+            results['Orca Whirlpools'] = {
+                'apy': round(float(orca_pool['apy']), 2),
+                'tvl': f"${orca_pool['tvlUsd']/1e6:.1f}M"
+            }
+
+        # Solend
+        solend_pool = next((p for p in pools if p['project'] == 'solend' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e5), None)
+        if solend_pool:
+            results['Solend Lending'] = {
+                'apy': round(float(solend_pool['apy']), 2),
+                'tvl': f"${solend_pool['tvlUsd']/1e6:.1f}M"
+            }
+
+        # Marginfi
+        m_pool = next((p for p in pools if p['project'] == 'marginfi' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e5), None)
+        if m_pool:
+            results['Marginfi Yield'] = {
+                'apy': round(float(m_pool['apy']), 2),
+                'tvl': f"${m_pool['tvlUsd']/1e6:.1f}M"
+            }
+            
+        return results
+        
+    except Exception as e:
+        print(f"DeFi Fetch Error: {e}")
+        # Fallback to mock if API fails
+        return {
+            'Jito Staking': {'apy': 7.8, 'tvl': '1.8B'},
+            'Raydium Pools': {'apy': 18.2, 'tvl': '650M'},
+            'Kamino Vaults': {'apy': 24.5, 'tvl': '410M'}
+        }
 
 def get_portfolio_growth_projection(initial_capital, monthly_investment, years, annual_return):
     """Calculate portfolio growth over time"""
