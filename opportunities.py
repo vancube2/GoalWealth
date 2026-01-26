@@ -15,14 +15,17 @@ def check_opportunities(user_profile):
     opportunities = []
     
     try:
-        # Try to get live market data
-        from market_data import get_crypto_prices
+        # Try to get live market data from live_data.py for consistency
+        from live_data import get_live_market_data
         
-        crypto_prices = get_crypto_prices(['solana', 'bitcoin', 'ethereum'])
+        market_data = get_live_market_data()
         
-        sol_price = crypto_prices.get('solana', {}).get('price', 0)
-        sol_change = crypto_prices.get('solana', {}).get('change_24h', 0)
-        btc_change = crypto_prices.get('bitcoin', {}).get('change_24h', 0)
+        sol_data = market_data.get('SOL', {})
+        btc_data = market_data.get('BTC', {})
+        
+        sol_price = sol_data.get('price', 0)
+        sol_change = sol_data.get('change_24h', 0)
+        btc_change = btc_data.get('change_24h', 0)
         
         # Opportunity 1: Solana Dip Buy
         if sol_change < -5:

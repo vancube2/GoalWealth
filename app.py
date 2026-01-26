@@ -1,4 +1,12 @@
 import streamlit as st
+
+st.set_page_config(
+    page_title="GoalWealth - Investment Planning Platform",
+    page_icon="assets/logo.png",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 from planner_agent import create_investment_plan
 from styles import apply_custom_styles, create_success_banner, create_hero_section, create_stat_card, create_metric_card_large, get_section_background
 import time
@@ -9,13 +17,6 @@ from live_data import get_live_market_data, get_defi_yields, get_portfolio_growt
 
 # Apply professional financial dashboard styling
 apply_custom_styles()
-
-st.set_page_config(
-    page_title="GoalWealth - Investment Planning Platform",
-    page_icon="assets/logo.png",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Common chart dark configuration
 def get_dark_chart_layout(height=350):
