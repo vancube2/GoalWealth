@@ -698,12 +698,12 @@ elif active_tab == "PORTFOLIO":
     with col_actions:
         st.markdown("""
         <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); height: 100%;">
-            <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Quick Actions</div>
+            <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Tactical Actions</div>
             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
         """, unsafe_allow_html=True)
-        if st.button("AI OPTIMIZE", use_container_width=True):
+        if st.button("STRATEGIC AUDIT", use_container_width=True):
             st.session_state.rebalance_request = True
-        if st.button("CLEAR ALL", use_container_width=True, type="secondary"):
+        if st.button("RESET DATA", use_container_width=True, type="secondary"):
             st.session_state.portfolio_holdings = []
             st.rerun()
         st.markdown("</div></div>", unsafe_allow_html=True)
@@ -810,10 +810,10 @@ elif active_tab == "PORTFOLIO":
         with sum_col3:
             # Active Rebalancing Logic
             if st.session_state.get('rebalance_request'):
-                st.markdown("#### AI PORTFOLIO OPTIMIZATION")
+                st.markdown("#### QUANTITATIVE STRATEGY")
                 from portfolio_agent import analyze_portfolio_rebalance
                 
-                with st.spinner("Analyzing portfolio weightings vs target profile..."):
+                with st.spinner("Analyzing portfolio weightings..."):
                     user_context = {'age': age, 'goal': goal}
                     rebalance_report = analyze_portfolio_rebalance(
                         st.session_state.portfolio_holdings,
@@ -839,17 +839,18 @@ elif active_tab == "PORTFOLIO":
                 st.markdown(create_stat_card("ASSET COUNT", f"{len(st.session_state.portfolio_holdings)} ACTIVATED", 0, "📂"), unsafe_allow_html=True)
                 st.markdown("""
                 <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1rem;">
-                    <div style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 1.5rem; line-height:1.5;">Click **AI OPTIMIZE** to generate a confidential rebalancing report secured by Arcium.</div>
+                    <div style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 1.5rem; line-height:1.5;">Initiate **STRATEGIC AUDIT** to generate a confidential rebalancing report secured by Arcium.</div>
                     <div style="background: rgba(59, 130, 246, 0.1); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.2); font-size: 0.75rem; color: #60A5FA;">
                         <b>Note:</b> All execution paths include multi-chain privacy steps.
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
+    else:
         st.markdown("""
         <div style="text-align: center; padding: 4rem 2rem; background: rgba(255,255,255,0.01); border-radius: 24px; border: 2px dashed rgba(255,255,255,0.05); margin-top: 2rem;">
             <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
-            <h3 style="color: #F8FAFC; margin-bottom: 0.5rem;">Your Portfolio is Empty</h3>
-            <p style="color: #94A3B8; max-width: 400px; margin: 0 auto 2rem;">Add assets from our global library of 100+ mapped symbols to begin institutional-grade tracking and rebalancing.</p>
+            <h3 style="color: #F8FAFC; margin-bottom: 0.5rem;">Inventory Status: Offline</h3>
+            <p style="color: #94A3B8; max-width: 400px; margin: 0 auto 2rem;">Add assets from our global library of 100+ institutional symbols to begin tracking and quantitative analysis.</p>
         </div>
         """, unsafe_allow_html=True)
 
