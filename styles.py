@@ -16,11 +16,13 @@ def apply_custom_styles():
         --primary: #3B82F6;
         --primary-gradient: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%);
         --accent: #10B981;
+        --accent-gradient: linear-gradient(135deg, #10B981 0%, #059669 100%);
         --text-primary: #F8FAFC;
         --text-secondary: #94A3B8;
         --border-color: rgba(255, 255, 255, 0.1);
         --card-border: 1px solid rgba(255, 255, 255, 0.1);
-        --glow: 0 0 20px rgba(59, 130, 246, 0.1);
+        --glow: 0 0 20px rgba(59, 130, 246, 0.15);
+        --vault-card: rgba(15, 23, 42, 0.8);
     }
     
     /* Global Styles */
@@ -587,6 +589,64 @@ def create_success_banner(message):
     ">
         <span style="font-size: 1.2rem;">✓</span>
         <span style="font-weight: 500;">{message}</span>
+    </div>
+    """
+
+def create_health_score_dial(score, level="Optimal"):
+    """Create a semi-circular health score dial using SVG"""
+    color = "#10B981" if score > 70 else "#F59E0B" if score > 40 else "#EF4444"
+    # SVG path for a semi-circle
+    dash_offset = 188 - (188 * (score / 100))
+    
+    return f"""
+    <div style="text-align: center; margin: 1rem 0; background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+        <div style="position: relative; width: 120px; height: 120px; margin: 0 auto;">
+            <svg viewBox="0 0 100 100" style="transform: rotate(-90deg);">
+                <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8" />
+                <circle cx="50" cy="50" r="30" fill="none" stroke="{color}" stroke-width="8" 
+                    stroke-dasharray="188.4" stroke-dashoffset="{dash_offset}" style="transition: stroke-dashoffset 1s ease-in-out;" />
+            </svg>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                <div style="font-size: 1.5rem; font-weight: 800; color: white; display:flex; align-items:center; justify-content:center;">{score}<span style="font-size:0.7rem; opacity:0.5; margin-left:2px;">%</span></div>
+            </div>
+        </div>
+        <div style="margin-top: 0.5rem;">
+            <div style="font-size: 0.8rem; color: #94A3B8; text-transform: uppercase; font-weight: 600;">Portfolio Health</div>
+            <div style="font-size: 1rem; color: {color}; font-weight: 700;">{level}</div>
+        </div>
+    </div>
+    """
+
+def create_vault_card(name, description, apy, risk, logo_url=None):
+    """Create a Strum-style strategy vault card"""
+    risk_color = "#10B981" if risk == "Low" else "#F59E0B" if risk == "Medium" else "#EF4444"
+    
+    logo_html = ""
+    if logo_url:
+        if isinstance(logo_url, str) and logo_url.startswith('data:image'):
+            logo_html = f'<img src="{logo_url}" style="width:24px; height:24px; border-radius:4px; margin-right:12px;">'
+        else:
+            logo_html = f'<div style="font-size:1.2rem; margin-right:12px;">{logo_url}</div>'
+
+    return f"""
+    <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem; transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                {logo_html}
+                <div style="font-weight: 700; color: white; font-size: 1.1rem;">{name}</div>
+            </div>
+            <p style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 1.5rem; line-height: 1.5;">{description}</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <div style="font-size: 0.7rem; color: #64748B; text-transform: uppercase;">Est. APY</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #10B981; font-family: 'JetBrains Mono';">{apy}%</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.7rem; color: #64748B; text-transform: uppercase;">Risk Level</div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: {risk_color};">{risk}</div>
+            </div>
+        </div>
     </div>
     """
 

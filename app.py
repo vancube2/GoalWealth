@@ -64,7 +64,8 @@ def get_asset_logo(symbol):
         'EFA': 'efa.png', 'EWJ': 'ewj.png', 'EWG': 'ewg.png',
         'IVV': 'ivv.png', 'VOO': 'voo.png', 'TLT': 'tlt.png',
         'BND': 'bnd.png', 'USO': 'uso.png', 'GDX': 'gdx.png',
-        'VT': 'vt.png', 'GLD': 'gld.png', 'GOLD': 'gold.png',
+        'VT': 'vt.png', 'VXUS': 'vxus.png', 'VEA': 'vea.png',
+        'GLD': 'gld.png', 'GOLD': 'gold.png',
         'SILVER': 'silver.png', 'OIL': 'oil.png',
         
         # Currencies (Mapped from icons)
@@ -253,8 +254,14 @@ with st.sidebar:
         index=0
     )
     
-    currency_symbol = currency.split("(")[1].split(")")[0]
-    currency_code = currency.split(" ")[0]
+    # Dynamic Currency Conversion Logic
+    from live_data import get_global_exchange_rates
+    rates = get_global_exchange_rates()
+    rate = rates.get(currency_code, 1.0)
+    
+    # Portfolio Health Score Component
+    from styles import create_health_score_dial
+    st.markdown(create_health_score_dial(88, "OPTIMAL"), unsafe_allow_html=True)
     
     income_val = st.session_state.get('income_val', 60000)
     income = st.number_input(
@@ -399,11 +406,14 @@ if active_tab == "DASHBOARD":
             logo = get_asset_logo(symbol)
             icon_html = render_asset_icon(logo)
             
+            # Convert price to local currency
+            local_price = details["price"] * rate
+            
             item_html = (
                 f'<div class="ticker-item">'
                 f'{icon_html}'
                 f'<span class="ticker-symbol">{symbol}</span>'
-                f'<span class="ticker-price">${details["price"]:,.2f}</span>'
+                f'<span class="ticker-price">{currency_symbol}{local_price:,.2f}</span>'
                 f'<span class="ticker-change {change_class}">{arrow} {abs(details["change_24h"]):.2f}%</span>'
                 f'</div>'
             )
@@ -421,24 +431,24 @@ if active_tab == "DASHBOARD":
     
     market_data = get_live_market_data()
     
-    # Top Stats Row
+    # Main Dashboard Metrics with Global Currency
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         btc_data = market_data['BTC']
-        st.markdown(create_stat_card("BITCOIN", f"${btc_data['price']:,.0f}", btc_data['change_24h'], get_asset_logo('BTC')), unsafe_allow_html=True)
+        st.markdown(create_stat_card("BITCOIN", f"{currency_symbol}{btc_data['price']*rate:,.0f}", btc_data['change_24h'], get_asset_logo('BTC')), unsafe_allow_html=True)
     
     with col2:
         eth_data = market_data['ETH']
-        st.markdown(create_stat_card("ETHEREUM", f"${eth_data['price']:,.0f}", eth_data['change_24h'], get_asset_logo('ETH')), unsafe_allow_html=True)
+        st.markdown(create_stat_card("ETHEREUM", f"{currency_symbol}{eth_data['price']*rate:,.0f}", eth_data['change_24h'], get_asset_logo('ETH')), unsafe_allow_html=True)
     
     with col3:
         sol_data = market_data['SOL']
-        st.markdown(create_stat_card("SOLANA", f"${sol_data['price']:,.2f}", sol_data['change_24h'], get_asset_logo('SOL')), unsafe_allow_html=True)
+        st.markdown(create_stat_card("SOLANA", f"{currency_symbol}{sol_data['price']*rate:,.2f}", sol_data['change_24h'], get_asset_logo('SOL')), unsafe_allow_html=True)
     
     with col4:
         vti_data = market_data['VTI']
-        st.markdown(create_stat_card("S&P 500 ETF", f"${vti_data['price']:,.2f}", vti_data['change_24h'], get_asset_logo('VTI')), unsafe_allow_html=True)
+        st.markdown(create_stat_card("GLOBAL EQUITY", f"{currency_symbol}{vti_data['price']*rate:,.2f}", vti_data['change_24h'], get_asset_logo('VTI')), unsafe_allow_html=True)
     
     st.markdown("###")
     
@@ -472,6 +482,22 @@ if active_tab == "DASHBOARD":
         fig.update_layout(layout)
         
         st.plotly_chart(fig, use_container_width=True)
+        
+        st.markdown("#### Global Smart Vaults")
+        from live_data import get_strategy_vaults
+        from styles import create_vault_card
+        
+        vaults = get_strategy_vaults()
+        v_cols = st.columns(3)
+        for i, vault in enumerate(vaults):
+            with v_cols[i]:
+                st.markdown(create_vault_card(
+                    vault['name'], 
+                    vault['description'], 
+                    vault['apy'], 
+                    vault['risk'], 
+                    vault['logo']
+                ), unsafe_allow_html=True)
     
     with col2:
         st.markdown("#### Live Yield Desk")

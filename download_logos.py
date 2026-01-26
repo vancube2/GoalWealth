@@ -83,6 +83,8 @@ logos = {
     'uso.png': 'https://financialmodelingprep.com/image-stock/USO.png',
     'gdx.png': 'https://financialmodelingprep.com/image-stock/GDX.png',
     'vt.png': 'https://financialmodelingprep.com/image-stock/VT.png',
+    'vxus.png': 'https://financialmodelingprep.com/image-stock/VXUS.png',
+    'vea.png': 'https://financialmodelingprep.com/image-stock/VEA.png',
     'gld.png': 'https://financialmodelingprep.com/image-stock/GLD.png',
     
     # Commodities / Currencies (Mapped to icons)

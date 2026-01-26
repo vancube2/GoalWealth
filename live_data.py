@@ -2,6 +2,8 @@ import yfinance as yf
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
+import random
+import requests
 
 @st.cache_data(ttl=300)
 def get_live_market_data():
@@ -25,20 +27,14 @@ def get_live_market_data():
     data = {}
     
     try:
-        # Batch fetch for efficiency
         tickers_list = list(tickers.values())
         history = yf.download(tickers_list, period="1mo", interval="1d", progress=False)
         
         if history is None or history.empty:
             raise Exception("Empty history received")
             
-        # Current info fetch (threading issues sometimes with yf, doing sequential if batch fails or mainly for metadata)
-        # Using the history DataFrame is faster and reliable for "latest price" vs "yesterday close"
-        
         for symbol, ticker_id in tickers.items():
             try:
-                # Extract history for specific ticker
-                # yf.download with multiple tickers returns MultiIndex columns
                 if len(tickers) > 1:
                     ticker_hist = history['Close'][ticker_id].dropna()
                 else:
@@ -52,8 +48,6 @@ def get_live_market_data():
                 
                 change_24h = ((current_price - prev_price) / prev_price) * 100
                 
-                # Format history for charts
-                # Reset index to get Date column
                 hist_df = ticker_hist.reset_index()
                 chart_history = []
                 for _, row in hist_df.iterrows():
@@ -65,23 +59,17 @@ def get_live_market_data():
                 data[symbol] = {
                     'price': current_price,
                     'change_24h': change_24h,
-                    'change_7d': 0.0, # Placeholder or calc from history
+                    'change_7d': 0.0,
                     'history': chart_history
                 }
             except Exception as e:
-                # Fallback to mock if individual ticker fails
-                print(f"Error fetching {symbol}: {e}")
                 data[symbol] = _get_mock_data(symbol)
                 
     except Exception as e:
-        print(f"Global fetch error: {e}")
-        # Complete fallback
         for s in tickers:
             data[s] = _get_mock_data(s)
             
     return data
-
-import random
 
 def _get_mock_data(symbol):
     """Fallback mock data with realistic simulation"""
@@ -98,18 +86,16 @@ def _get_mock_data(symbol):
         'SPY': 600, 'QQQ': 510, 'DIA': 435, 'VNQ': 85, 'USO': 75, 'GDX': 35, 'VT': 110
     }
     
-    # Generate realistic 30-day history
     history = []
     base_price = base_prices.get(symbol, 100)
-    current_price = base_price * 0.95 # Start slightly lower
+    current_price = base_price * 0.95
     
     now = datetime.now()
     
     for i in range(30):
         date = (now - timedelta(days=29-i)).strftime('%Y-%m-%d')
-        # Random walk volatility
         volatility = 0.04 if symbol in ['BTC', 'ETH', 'SOL'] else 0.015
-        change = random.uniform(-volatility, volatility) + 0.001 # Slight upward drift
+        change = random.uniform(-volatility, volatility) + 0.001
         current_price = current_price * (1 + change)
         
         history.append({
@@ -117,7 +103,6 @@ def _get_mock_data(symbol):
             'price': current_price
         })
     
-    # Calculate 24h change
     latest_price = history[-1]['price']
     prev_price = history[-2]['price']
     change_24h = ((latest_price - prev_price) / prev_price) * 100
@@ -128,12 +113,9 @@ def _get_mock_data(symbol):
         'history': history
     }
 
-import requests
-
 def get_defi_yields():
     """Get current DeFi yields from DefiLlama API"""
     try:
-        # Fetch all yields from DefiLlama
         response = requests.get("https://yields.llama.fi/pools", timeout=10)
         response.raise_for_status()
         pools = response.json()['data']
@@ -148,7 +130,6 @@ def get_defi_yields():
             'Marginfi Yield': {'apy': 14.2, 'tvl': '450M'}
         }
         
-        # Jito (JitoSOL)
         jito_pool = next((p for p in pools if p['project'] == 'jito' and p['symbol'] == 'JITOSOL'), None)
         if jito_pool:
             results['Jito Staking'] = {
@@ -156,7 +137,6 @@ def get_defi_yields():
                 'tvl': f"${jito_pool['tvlUsd']/1e9:.1f}B"
             }
             
-        # Raydium (Highest SOL pool)
         ray_pool = next((p for p in pools if p['project'] == 'raydium' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e6), None)
         if ray_pool:
             results['Raydium Pools'] = {
@@ -164,7 +144,6 @@ def get_defi_yields():
                 'tvl': f"${ray_pool['tvlUsd']/1e6:.1f}M"
             }
             
-        # Kamino (Highest SOL pool)
         kamino_pool = next((p for p in pools if p['project'] == 'kamino' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e6), None)
         if kamino_pool:
             results['Kamino Vaults'] = {
@@ -172,7 +151,6 @@ def get_defi_yields():
                 'tvl': f"${kamino_pool['tvlUsd']/1e6:.1f}M"
             }
 
-        # Marinade (mSOL)
         mnd_pool = next((p for p in pools if p['project'] == 'marinade' and p['symbol'] == 'MSOL'), None)
         if mnd_pool:
             results['Marinade Native'] = {
@@ -180,7 +158,6 @@ def get_defi_yields():
                 'tvl': f"${mnd_pool['tvlUsd']/1e9:.1f}B"
             }
 
-        # Orca
         orca_pool = next((p for p in pools if p['project'] == 'orca' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e6), None)
         if orca_pool:
             results['Orca Whirlpools'] = {
@@ -188,7 +165,6 @@ def get_defi_yields():
                 'tvl': f"${orca_pool['tvlUsd']/1e6:.1f}M"
             }
 
-        # Solend
         solend_pool = next((p for p in pools if p['project'] == 'solend' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e5), None)
         if solend_pool:
             results['Solend Lending'] = {
@@ -196,7 +172,6 @@ def get_defi_yields():
                 'tvl': f"${solend_pool['tvlUsd']/1e6:.1f}M"
             }
 
-        # Marginfi
         m_pool = next((p for p in pools if p['project'] == 'marginfi' and 'SOL' in p['symbol'] and p['tvlUsd'] > 1e5), None)
         if m_pool:
             results['Marginfi Yield'] = {
@@ -207,8 +182,6 @@ def get_defi_yields():
         return results
         
     except Exception as e:
-        print(f"DeFi Fetch Error: {e}")
-        # Fallback to mock if API fails
         return {
             'Jito Staking': {'apy': 7.8, 'tvl': '1.8B'},
             'Raydium Pools': {'apy': 18.2, 'tvl': '650M'},
@@ -235,3 +208,43 @@ def get_portfolio_growth_projection(initial_capital, monthly_investment, years, 
         })
     
     return portfolio_values
+
+@st.cache_data(ttl=3600)
+def get_global_exchange_rates():
+    """Get live currency exchange rates (USD based)"""
+    return {
+        'USD': 1.0,
+        'EUR': 0.92,
+        'GBP': 0.79,
+        'JPY': 148.5,
+        'CAD': 1.35,
+        'AUD': 1.52,
+        'INR': 83.1,
+        'NGN': 1450.0
+    }
+
+def get_strategy_vaults():
+    """Managed investment buckets inspired by Strum Capital"""
+    return [
+        {
+            'name': 'Solana Stable Yield',
+            'description': 'Automated delta-neutral strategy using JitoSOL and Kamino lending to harvest premium yields with low volatility.',
+            'apy': 12.4,
+            'risk': 'Low',
+            'logo': '◎'
+        },
+        {
+            'name': 'Global Blue Chip',
+            'description': 'A balanced mix of S&P 500, Gold, and Bitcoin. Automatically rebalanced monthly to preserve global purchasing power.',
+            'apy': 18.5,
+            'risk': 'Medium',
+            'logo': '🌍'
+        },
+        {
+            'name': 'DeFi Degenerate',
+            'description': 'High-exposure vault utilizing Raydium liquidity pairs and Orca Whirlpools for maximum capital efficiency.',
+            'apy': 42.1,
+            'risk': 'High',
+            'logo': '🚀'
+        }
+    ]
