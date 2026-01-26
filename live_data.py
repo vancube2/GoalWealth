@@ -9,19 +9,32 @@ import requests
 def get_live_market_data():
     """Get live market data using yfinance with caching"""
     tickers = {
+        # Crypto
         'BTC': 'BTC-USD', 'ETH': 'ETH-USD', 'SOL': 'SOL-USD',
         'BNB': 'BNB-USD', 'XRP': 'XRP-USD', 'ADA': 'ADA-USD',
         'AVAX': 'AVAX-USD', 'LINK': 'LINK-USD', 'DOT': 'DOT-USD',
-        'SOL': 'SOL-USD', 'JUP': 'JUP-USD', 'PYTH': 'PYTH-USD',
-        'VTI': 'VTI', 'GOLD': 'GC=F', 'SILVER': 'SI=F',
-        'AAPL': 'AAPL', 'MSFT': 'MSFT', 'NVDA': 'NVDA', 
-        'TSLA': 'TSLA', 'AMZN': 'AMZN', 'GOOGL': 'GOOGL', 
-        'META': 'META', 'BRK-B': 'BRK-B', 'UNH': 'UNH',
-        'V': 'V', 'MA': 'MA', 'JPM': 'JPM', 'GS': 'GS',
+        'JUP': 'JUP-USD', 'PYTH': 'PYTH-USD', 'RAY': 'RAY-USD',
+        'BONK': 'BONK-USD', 'AR': 'AR-USD', 'RENDER': 'RENDER-USD',
+        
+        # US Equity
+        'VTI': 'VTI', 'SPY': 'SPY', 'QQQ': 'QQQ', 'DIA': 'DIA',
+        'AAPL': 'AAPL', 'MSFT': 'MSFT', 'NVDA': 'NVDA', 'AMZN': 'AMZN',
+        'GOOGL': 'GOOGL', 'META': 'META', 'TSLA': 'TSLA', 'BRK-B': 'BRK-B',
+        'JPM': 'JPM', 'UNH': 'UNH', 'V': 'V', 'MA': 'MA', 'COST': 'COST',
+        'PG': 'PG', 'HD': 'HD', 'LLY': 'LLY', 'AVGO': 'AVGO',
+        
+        # Global Equity & ETFs
+        'VT': 'VT', 'VXUS': 'VXUS', 'VEA': 'VEA', 'VWO': 'VWO',
         'ASML': 'ASML', 'SAP': 'SAP', 'SAMSUNG': '005930.KS',
         'TOYOTA': 'TM', 'SONY': 'SONY', 'LVMH': 'MC.PA',
-        'VWO': 'VWO', 'EFA': 'EFA', 'EWJ': 'EWJ', 'EWG': 'EWG',
-        'SPY': 'SPY', 'QQQ': 'QQQ', 'DIA': 'DIA', 'VNQ': 'VNQ'
+        'BP': 'BP', 'HSBA': 'HSBA.L', 'NESN': 'NESN.SW',
+        
+        # Commodities & Real Estate
+        'GOLD': 'GC=F', 'SILVER': 'SI=F', 'OIL': 'CL=F',
+        'VNQ': 'VNQ', 'REM': 'REM', 'GSG': 'GSG',
+        
+        # Fixed Income
+        'BND': 'BND', 'TLT': 'TLT', 'AGG': 'AGG', 'JNK': 'JNK'
     }
     
     data = {}
@@ -83,7 +96,8 @@ def _get_mock_data(symbol):
         'META': 560, 'NFLX': 680, 'AMD': 165,
         'INTC': 25, 'JPM': 230, 'GS': 520,
         'XOM': 115, 'CVX': 155, 'BRK-B': 465,
-        'SPY': 600, 'QQQ': 510, 'DIA': 435, 'VNQ': 85, 'USO': 75, 'GDX': 35, 'VT': 110
+        'SPY': 600, 'QQQ': 510, 'DIA': 435, 'VNQ': 85, 'USO': 75, 'GDX': 35, 'VT': 110,
+        'BND': 72, 'TLT': 95, 'VXUS': 65, 'VEA': 52, 'VWO': 45
     }
     
     history = []
@@ -253,4 +267,70 @@ def get_strategy_vaults():
             'status': 'Live',
             'logo': 'RAY'
         }
+    ]
+
+@st.cache_data(ttl=3600)
+def get_asset_registry():
+    """Returns a curated list of global assets with metadata for searchability"""
+    return [
+        # Crypto
+        {'symbol': 'BTC', 'name': 'Bitcoin', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'ETH', 'name': 'Ethereum', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'SOL', 'name': 'Solana', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'BNB', 'name': 'Binance Coin', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'XRP', 'name': 'Ripple', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'ADA', 'name': 'Cardano', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'AVAX', 'name': 'Avalanche', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'LINK', 'name': 'Chainlink', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'DOT', 'name': 'Polkadot', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'JUP', 'name': 'Jupiter', 'category': 'Crypto', 'region': 'Solana'},
+        {'symbol': 'PYTH', 'name': 'Pyth Network', 'category': 'Crypto', 'region': 'Solana'},
+        {'symbol': 'RAY', 'name': 'Raydium', 'category': 'Crypto', 'region': 'Solana'},
+        {'symbol': 'BONK', 'name': 'Bonk', 'category': 'Crypto', 'region': 'Solana'},
+        {'symbol': 'AR', 'name': 'Arweave', 'category': 'Crypto', 'region': 'Global'},
+        {'symbol': 'RENDER', 'name': 'Render Token', 'category': 'Crypto', 'region': 'Global'},
+        
+        # US Equity
+        {'symbol': 'AAPL', 'name': 'Apple Inc.', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'MSFT', 'name': 'Microsoft Corp', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'NVDA', 'name': 'NVIDIA Corp', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'AMZN', 'name': 'Amazon.com', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'GOOGL', 'name': 'Alphabet Inc.', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'META', 'name': 'Meta Platforms', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'TSLA', 'name': 'Tesla, Inc.', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'BRK-B', 'name': 'Berkshire Hathaway', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'JPM', 'name': 'JPMorgan Chase', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'UNH', 'name': 'UnitedHealth Group', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'V', 'name': 'Visa Inc.', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'MA', 'name': 'Mastercard Inc.', 'category': 'Equity', 'region': 'US'},
+        {'symbol': 'COST', 'name': 'Costco Wholesale', 'category': 'Equity', 'region': 'US'},
+        
+        # Global Equity
+        {'symbol': 'ASML', 'name': 'ASML Holding', 'category': 'Equity', 'region': 'Europe'},
+        {'symbol': 'SAP', 'name': 'SAP SE', 'category': 'Equity', 'region': 'Europe'},
+        {'symbol': 'SAMSUNG', 'name': 'Samsung Electronics', 'category': 'Equity', 'region': 'Asia'},
+        {'symbol': 'TOYOTA', 'name': 'Toyota Motor', 'category': 'Equity', 'region': 'Asia'},
+        {'symbol': 'SONY', 'name': 'Sony Group', 'category': 'Equity', 'region': 'Asia'},
+        {'symbol': 'LVMH', 'name': 'LVMH Moet Hennessy', 'category': 'Equity', 'region': 'Europe'},
+        {'symbol': 'BP', 'name': 'BP plc', 'category': 'Equity', 'region': 'Europe'},
+        {'symbol': 'HSBA', 'name': 'HSBC Holdings', 'category': 'Equity', 'region': 'Europe'},
+        {'symbol': 'NESN', 'name': 'Nestle S.A.', 'category': 'Equity', 'region': 'Europe'},
+        
+        # ETFs
+        {'symbol': 'VTI', 'name': 'Vanguard Total Stock', 'category': 'ETF', 'region': 'US'},
+        {'symbol': 'SPY', 'name': 'SPDR S&P 500', 'category': 'ETF', 'region': 'US'},
+        {'symbol': 'QQQ', 'name': 'Invesco QQQ Trust', 'category': 'ETF', 'region': 'US'},
+        {'symbol': 'VT', 'name': 'Vanguard Total World', 'category': 'ETF', 'region': 'Global'},
+        {'symbol': 'VXUS', 'name': 'Vanguard Total Intl', 'category': 'ETF', 'region': 'Global'},
+        {'symbol': 'VWO', 'name': 'Vanguard EM ETF', 'category': 'ETF', 'region': 'Emerging'},
+        {'symbol': 'VNQ', 'name': 'Vanguard Real Estate', 'category': 'ETF', 'region': 'US'},
+        
+        # Commodities
+        {'symbol': 'GOLD', 'name': 'Gold (Comex)', 'category': 'Commodity', 'region': 'Global'},
+        {'symbol': 'SILVER', 'name': 'Silver (Comex)', 'category': 'Commodity', 'region': 'Global'},
+        {'symbol': 'OIL', 'name': 'Crude Oil', 'category': 'Commodity', 'region': 'Global'},
+        
+        # Fixed Income
+        {'symbol': 'BND', 'name': 'Vanguard Total Bond', 'category': 'Fixed Income', 'region': 'US'},
+        {'symbol': 'TLT', 'name': '20+ Year Treasury', 'category': 'Fixed Income', 'region': 'US'}
     ]

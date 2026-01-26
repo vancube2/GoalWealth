@@ -650,39 +650,201 @@ if active_tab == "DASHBOARD":
 
 # TAB 2: Portfolio Tracker
 elif active_tab == "PORTFOLIO":
-    st.markdown("### Portfolio Manager")
+    st.markdown("### Portfolio Workspace")
     
-    with st.expander("ADD ASSETS", expanded=False):
-        col1, col2 = st.columns(2)
-        with col1:
-            st.caption("TRADITIONAL")
-            vti_shares = st.number_input("VTI", value=0.0, step=1.0)
-            bnd_shares = st.number_input("BND", value=0.0, step=1.0)
-            vxus_shares = st.number_input("VXUS", value=0.0, step=1.0)
-            vnq_shares = st.number_input("VNQ", value=0.0, step=1.0)
-            gld_shares = st.number_input("GLD", value=0.0, step=1.0)
-        with col2:
-            st.caption("CRYPTO")
-            btc_amount = st.number_input("BTC", value=0.0, step=0.01)
-            eth_amount = st.number_input("ETH", value=0.0, step=0.1)
-            sol_amount = st.number_input("SOL", value=0.0, step=1.0)
-            ray_amount = st.number_input("RAY", value=0.0, step=10.0)
-            jup_amount = st.number_input("JUP", value=0.0, step=10.0)
+    # Initialize Portfolio in Session State
+    if 'portfolio_holdings' not in st.session_state:
+        st.session_state.portfolio_holdings = []
+    
+    # --- Sidebar/Management Controls ---
+    col_add, col_actions = st.columns([2, 1])
+    
+    with col_add:
+        with st.expander("➕ ADD ASSET TO PORTFOLIO", expanded=not st.session_state.portfolio_holdings):
+            from live_data import get_asset_registry
+            registry = get_asset_registry()
             
-        track_btn = st.button("UPDATE PORTFOLIO", type="primary")
-
-    if track_btn or all(v == 0 for v in [vti_shares, bnd_shares, btc_amount, sol_amount]): # simplified check
-        # Use existing logic mostly, but styling updates
-        if 'portfolio_calculated' not in st.session_state:
-            # Mock calculation for UI preview if zeros
-            pass
+            # Searchable selectbox for assets
+            asset_options = [f"{a['symbol']} - {a['name']} ({a['category']})" for a in registry]
+            selected_asset_str = st.selectbox("Search Global Assets (Symbols, Names, Categories)", options=asset_options, key="asset_search")
             
-        # ... (keeping core logic but wrapping outputs in new containers)
-        # Note: For brevity in this edit, assuming the user will use the inputs to trigger.
-        pass
+            # Extract symbol
+            selected_symbol = selected_asset_str.split(" - ")[0]
+            
+            col_q, col_c = st.columns(2)
+            with col_q:
+                qty = st.number_input("Quantity", min_value=0.0, step=0.1, key="add_qty")
+            with col_c:
+                avg_cost = st.number_input(f"Avg Cost ({currency_symbol})", min_value=0.0, step=1.0, key="add_cost")
+            
+            if st.button("ADD TO HOLDINGS", type="primary", use_container_width=True):
+                # Check if already exists
+                existing = next((item for item in st.session_state.portfolio_holdings if item['symbol'] == selected_symbol), None)
+                if existing:
+                    # Update (simplified for demo: just replacing or averaging)
+                    new_qty = existing['qty'] + qty
+                    new_cost = ((existing['qty'] * existing['cost']) + (qty * avg_cost)) / new_qty if new_qty > 0 else 0
+                    existing['qty'] = new_qty
+                    existing['cost'] = new_cost
+                else:
+                    st.session_state.portfolio_holdings.append({
+                        'symbol': selected_symbol,
+                        'qty': qty,
+                        'cost': avg_cost
+                    })
+                st.success(f"Added {selected_symbol} to portfolio.")
+                st.rerun()
 
-    # For the UI tasks, I will trust the standard Streamlit render of the dataframe 
-    # since I applied global CSS for dataframes.
+    with col_actions:
+        st.markdown("""
+        <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); height: 100%;">
+            <div style="font-size: 0.7rem; color: #94A3B8; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Quick Actions</div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        """, unsafe_allow_html=True)
+        if st.button("AI OPTIMIZE", use_container_width=True):
+            st.session_state.rebalance_request = True
+        if st.button("CLEAR ALL", use_container_width=True, type="secondary"):
+            st.session_state.portfolio_holdings = []
+            st.rerun()
+        st.markdown("</div></div>", unsafe_allow_html=True)
+
+    # --- Portfolio Display ---
+    if st.session_state.portfolio_holdings:
+        st.markdown("#### Institutional Holdings")
+        
+        # Table Header
+        header_cols = st.columns([1, 1.5, 1, 1, 1, 1, 0.5])
+        header_style = "font-size: 0.65rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;"
+        header_cols[0].markdown(f"<div style='{header_style}'>Asset</div>", unsafe_allow_html=True)
+        header_cols[1].markdown(f"<div style='{header_style}'>Position</div>", unsafe_allow_html=True)
+        header_cols[2].markdown(f"<div style='{header_style}'>Avg Cost</div>", unsafe_allow_html=True)
+        header_cols[3].markdown(f"<div style='{header_style}'>Price</div>", unsafe_allow_html=True)
+        header_cols[4].markdown(f"<div style='{header_style}'>Value</div>", unsafe_allow_html=True)
+        header_cols[5].markdown(f"<div style='{header_style}'>PnL</div>", unsafe_allow_html=True)
+        
+        total_market_value = 0
+        total_cost_basis = 0
+        
+        # Get live data for holdings
+        market_data = get_live_market_data()
+        
+        for idx, item in enumerate(st.session_state.portfolio_holdings):
+            symbol = item['symbol']
+            qty = item['qty']
+            cost = item['cost']
+            
+            data = market_data.get(symbol, {'price': cost, 'change_24h': 0.0})
+            current_price = data['price']
+            
+            market_value = qty * current_price
+            cost_basis = qty * cost
+            unrealized_pnl = market_value - cost_basis
+            pnl_pct = (unrealized_pnl / cost_basis * 100) if cost_basis > 0 else 0
+            
+            total_market_value += market_value
+            total_cost_basis += cost_basis
+            
+            row_cols = st.columns([1, 1.5, 1, 1, 1, 1, 0.5])
+            
+            # Asset Icon & Name
+            logo_uri = get_asset_logo(symbol)
+            icon_html = render_asset_icon(logo_uri, style="width:24px; height:24px; margin-right:10px;")
+            row_cols[0].markdown(f"<div style='display:flex; align-items:center;'>{icon_html} <b>{symbol}</b></div>", unsafe_allow_html=True)
+            
+            # Position Info
+            row_cols[1].markdown(f"<div style='color:#F8FAFC;'>{qty:,.2f} Units</div>", unsafe_allow_html=True)
+            
+            # Values
+            row_cols[2].markdown(f"<div>{currency_symbol}{cost:,.2f}</div>", unsafe_allow_html=True)
+            row_cols[3].markdown(f"<div>{currency_symbol}{current_price:,.2f}</div>", unsafe_allow_html=True)
+            row_cols[4].markdown(f"<div style='font-weight:700; color:{'#10B981' if market_value > cost_basis else '#F8FAFC'};'>{currency_symbol}{market_value:,.2f}</div>", unsafe_allow_html=True)
+            
+            # PnL
+            pnl_color = "#10B981" if unrealized_pnl >= 0 else "#EF4444"
+            row_cols[5].markdown(f"<div style='color:{pnl_color}; font-weight:700;'>{currency_symbol}{unrealized_pnl:+, .2f} <br><small>{pnl_pct:+.2f}%</small></div>", unsafe_allow_html=True)
+            
+            # Remove button
+            if row_cols[6].button("🗑️", key=f"del_{symbol}"):
+                st.session_state.portfolio_holdings.pop(idx)
+                st.rerun()
+
+        st.markdown("---")
+        
+        # Summary Row
+        sum_col1, sum_col2, sum_col3 = st.columns([1, 1, 1.5])
+        with sum_col1:
+            st.markdown(create_stat_card("TOTAL MARKET VALUE", f"{currency_symbol}{total_market_value:,.2f}", 0, "💰"), unsafe_allow_html=True)
+            
+            # Simple Allocation Chart
+            fig_alloc = go.Figure(data=[go.Pie(
+                labels=[h['symbol'] for h in st.session_state.portfolio_holdings],
+                values=[(h['qty'] * market_data.get(h['symbol'], {'price': 0})['price']) for h in st.session_state.portfolio_holdings],
+                hole=.6,
+                marker=dict(colors=['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']),
+                textinfo='label+percent'
+            )])
+            fig_alloc.update_layout(get_dark_chart_layout(height=250))
+            fig_alloc.update_traces(showlegend=False)
+            st.plotly_chart(fig_alloc, use_container_width=True, key="port_alloc_chart")
+
+        with sum_col2:
+            total_pnl = total_market_value - total_cost_basis
+            total_pnl_pct = (total_pnl / total_cost_basis * 100) if total_cost_basis > 0 else 0
+            st.markdown(create_stat_card("NET UNREALIZED PNL", f"{currency_symbol}{total_pnl:,.2f}", total_pnl_pct, "📈"), unsafe_allow_html=True)
+            
+            # Allocation Target Summary (Mock for UI)
+            tgt_style = "font-size:0.8rem; color:#94A3B8; margin-bottom:0.5rem;"
+            st.markdown(f"""
+            <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1rem;">
+                <div style="font-size: 0.7rem; color: #10B981; text-transform: uppercase; font-weight: 700; margin-bottom: 1rem;">Target Alignment: {risk_tolerance}</div>
+                <div style='{tgt_style}'>Core Equity: <span style='float:right; color:#fff;'>50-60%</span></div>
+                <div style='{tgt_style}'>Digital Alpha: <span style='float:right; color:#fff;'>15-20%</span></div>
+                <div style='{tgt_style}'>Yield Layer: <span style='float:right; color:#fff;'>10-15%</span></div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with sum_col3:
+            # Active Rebalancing Logic
+            if st.session_state.get('rebalance_request'):
+                st.markdown("#### AI PORTFOLIO OPTIMIZATION")
+                from portfolio_agent import analyze_portfolio_rebalance
+                
+                with st.spinner("Analyzing portfolio weightings vs target profile..."):
+                    user_context = {'age': age, 'goal': goal}
+                    rebalance_report = analyze_portfolio_rebalance(
+                        st.session_state.portfolio_holdings,
+                        risk_tolerance,
+                        user_context
+                    )
+                    
+                    st.markdown(f"""
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1.25rem; border-radius: 16px; margin-top: 0.5rem;">
+                        <h5 style="color: #60A5FA; margin-top: 0; display:flex; align-items:center;">
+                            <span style="margin-right:8px;">🎯</span> TACTICAL STEPS
+                        </h5>
+                        <div style="color: #E2E8F0; font-size: 0.85rem; line-height: 1.5; height: 280px; overflow-y: auto;">
+                            {rebalance_report}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    if st.button("DISMISS REPORT", use_container_width=True, type="secondary"):
+                        st.session_state.rebalance_request = False
+                        st.rerun()
+            else:
+                st.markdown(create_stat_card("ASSET COUNT", f"{len(st.session_state.portfolio_holdings)} ACTIVATED", 0, "📂"), unsafe_allow_html=True)
+                st.markdown("""
+                <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1rem;">
+                    <div style="font-size: 0.75rem; color: #94A3B8; margin-bottom: 1rem;">Click 'AI OPTIMIZE' to generate specific rebalancing steps for this portfolio.</div>
+                </div>
+                """, unsafe_allow_html=True)
+        st.markdown("""
+        <div style="text-align: center; padding: 4rem 2rem; background: rgba(255,255,255,0.01); border-radius: 24px; border: 2px dashed rgba(255,255,255,0.05); margin-top: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+            <h3 style="color: #F8FAFC; margin-bottom: 0.5rem;">Your Portfolio is Empty</h3>
+            <p style="color: #94A3B8; max-width: 400px; margin: 0 auto 2rem;">Add assets from our global library of 100+ mapped symbols to begin institutional-grade tracking and rebalancing.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # TAB 3: AI Advisor
 elif active_tab == "AI ADVISOR":
