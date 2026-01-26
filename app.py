@@ -262,35 +262,6 @@ with st.sidebar:
     rates = get_global_exchange_rates()
     rate = rates.get(currency_code, 1.0)
     
-    # --- Financial Resolution Engine ---
-    st.markdown("---")
-    st.markdown("##### 🏁 RESOLUTION DASHBOARD")
-    
-    # Quantitative Resolution Milestones
-    res_col1, res_col2 = st.columns(2)
-    with res_col1:
-        # Emergency Fund Milestone
-        ef_target = 10000 * rate
-        ef_progress = min(capital / ef_target, 1.0) if ef_target > 0 else 1.0
-        st.caption("EMERGENCY FUND")
-        st.progress(ef_progress)
-        st.markdown(f"<p style='font-size:0.7rem; color:#94A3B8; margin-top:-0.5rem;'>{int(ef_progress*100)}% of {currency_symbol}{int(ef_target):,}</p>", unsafe_allow_html=True)
-    
-    with res_col2:
-        # Retirement Velocity
-        target_v = 5000 * rate
-        velocity = min(monthly / target_v, 1.0) if target_v > 0 else 1.0
-        st.caption("SAVINGS VELOCITY")
-        st.progress(velocity)
-        st.markdown(f"<p style='font-size:0.7rem; color:#94A3B8; margin-top:-0.5rem;'>{int(velocity*100)}% of target</p>", unsafe_allow_html=True)
-
-    # Institutional Risk Resilience Metric
-    from styles import create_health_score_dial
-    
-    # Simple multivariable metric: (Income Stability * 0.4) + (Capital Base * 0.3) + (Savings Rate * 0.3)
-    resilience_score = min(80 + (monthly/500 * 5) + (income/100000 * 5), 99)
-    st.markdown(create_health_score_dial(int(resilience_score), "RESILIENCE"), unsafe_allow_html=True)
-    
     st.markdown("###")
     st.caption("FINANCIAL PARAMETERS")
     
@@ -326,6 +297,35 @@ with st.sidebar:
         format="%d",
         key="monthly_input"
     )
+
+    # --- Financial Resolution Engine ---
+    st.markdown("---")
+    st.markdown("##### 🏁 RESOLUTION DASHBOARD")
+    
+    # Quantitative Resolution Milestones
+    res_col1, res_col2 = st.columns(2)
+    with res_col1:
+        # Emergency Fund Milestone
+        ef_target = 10000 * rate
+        ef_progress = min(capital / ef_target, 1.0) if ef_target > 0 else 1.0
+        st.caption("EMERGENCY FUND")
+        st.progress(ef_progress)
+        st.markdown(f"<p style='font-size:0.7rem; color:#94A3B8; margin-top:-0.5rem;'>{int(ef_progress*100)}% of {currency_symbol}{int(ef_target):,}</p>", unsafe_allow_html=True)
+    
+    with res_col2:
+        # Retirement Velocity
+        target_v = 5000 * rate
+        velocity = min(monthly / target_v, 1.0) if target_v > 0 else 1.0
+        st.caption("SAVINGS VELOCITY")
+        st.progress(velocity)
+        st.markdown(f"<p style='font-size:0.7rem; color:#94A3B8; margin-top:-0.5rem;'>{int(velocity*100)}% of target</p>", unsafe_allow_html=True)
+
+    # Institutional Risk Resilience Metric
+    from styles import create_health_score_dial
+    
+    # Simple multivariable metric: (Income Stability * 0.4) + (Capital Base * 0.3) + (Savings Rate * 0.3)
+    resilience_score = min(80 + (monthly/500 * 5) + (income/100000 * 5), 99)
+    st.markdown(create_health_score_dial(int(resilience_score), "RESILIENCE"), unsafe_allow_html=True)
     
     # Investment Goals
     st.markdown("###")
