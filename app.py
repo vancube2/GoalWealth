@@ -328,12 +328,17 @@ if active_tab == "DASHBOARD":
         for symbol, details in live_market.items():
             change_class = "change-up" if details['change_24h'] >= 0 else "change-down"
             arrow = "▲" if details['change_24h'] >= 0 else "▼"
-            logo_url = get_asset_logo(symbol)
-            fallback_img = "https://cdn-icons-png.flaticon.com/512/2489/2489756.png"
+            logo = get_asset_logo(symbol)
+            
+            # Check if it's a base64 image or emoji
+            if logo.startswith('data:image'):
+                icon_html = f'<img src="{logo}" class="ticker-logo">'
+            else:
+                icon_html = f'<div class="ticker-icon">{logo}</div>'
             
             item_html = (
                 f'<div class="ticker-item">'
-                f'<img src="{logo_url}" class="ticker-logo" onerror="this.onerror=null;this.src=\'{fallback_img}\';">'
+                f'{icon_html}'
                 f'<span class="ticker-symbol">{symbol}</span>'
                 f'<span class="ticker-price">${details["price"]:,.2f}</span>'
                 f'<span class="ticker-change {change_class}">{arrow} {abs(details["change_24h"]):.2f}%</span>'

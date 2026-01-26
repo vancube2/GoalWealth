@@ -552,8 +552,12 @@ def create_stat_card(title, value, change=None, logo_url=None):
 
     logo_html = ""
     if logo_url:
-        # Use simple reliable fallback via standard placeholder if main fails
-        logo_html = f'<img src="{logo_url}" class="stat-logo" onerror="this.onerror=null;this.src=\'https://cdn-icons-png.flaticon.com/512/2489/2489756.png\'">'
+        # Check if it's a base64 image or emoji
+        if isinstance(logo_url, str) and logo_url.startswith('data:image'):
+            logo_html = f'<img src="{logo_url}" class="stat-logo">'
+        else:
+            # It's an emoji, render as text
+            logo_html = f'<div style="font-size: 2rem; margin-bottom: 0.5rem;">{logo_url}</div>'
 
     return f"""<div style="{create_glass_card()}">
         {logo_html}
