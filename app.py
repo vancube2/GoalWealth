@@ -15,65 +15,54 @@ from streamlit_mic_recorder import mic_recorder
 from voice_processor import extract_profile_from_voice, process_voice_advisor_query, transcribe_voice
 from live_data import get_live_market_data, get_defi_yields, get_portfolio_growth_projection
 
+import base64
+from pathlib import Path
+
+def get_logo_base64(filename):
+    """Load local logo and convert to base64 for embedding"""
+    try:
+        logo_path = Path(__file__).parent / 'assets' / 'logos' / filename
+        if logo_path.exists():
+            with open(logo_path, 'rb') as f:
+                return base64.b64encode(f.read()).decode()
+    except:
+        pass
+    return None
+
 def get_asset_logo(symbol):
-    """Returns ultra-reliable professional logo URL with domain-based and GitHub-hosted sources"""
+    """Returns local logo as base64 data URI"""
     symbol = symbol.upper()
     
-    # Major Stocks and ETFs - Direct Routing to known working CDN
-    stock_tickers = ['VTI', 'BND', 'VXUS', 'VNQ', 'GLD', 'AAPL', 'TSLA', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'NFLX', 'AMD', 'INTC', 'JPM', 'GS', 'XOM', 'CVX', 'BRK-B', 'SPY', 'QQQ', 'DIA', 'GDX', 'USO', 'VT']
-    
-    placeholders = {
-        'CRYPTO': "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
-        'STOCK': "https://cdn-icons-png.flaticon.com/512/2103/2103601.png",
-        'GOLD': "https://cdn-icons-png.flaticon.com/512/272/272530.png",
-        'BONDS': "https://cdn-icons-png.flaticon.com/512/2845/2845927.png"
-    }
-
-    if symbol == 'GOLD':
-        return placeholders['GOLD']
-    elif symbol == 'BONDS':
-        return placeholders['BONDS']
-    
-    # Priority 1: High reliability Stock CDN
-    if symbol in stock_tickers:
-        return f"https://financialmodelingprep.com/image-stock/{symbol}.png"
-    
-    # Priority 2: Standard GitHub-hosted Crypto Icons (Transparent 32x32)
-    # These are very stable and less likely to 404 than live APIs
-    major_cryptos = {
-        'BTC': 'btc', 'ETH': 'eth', 'SOL': 'sol', 
-        'USDC': 'usdc', 'USDT': 'usdt', 'BNB': 'bnb', 
-        'XRP': 'xrp', 'ADA': 'ada', 'AVAX': 'avax', 
-        'DOT': 'dot', 'LINK': 'link', 'MATIC': 'matic'
+    # Map symbols to local logo files
+    logo_map = {
+        'BTC': 'btc.png', 'ETH': 'eth.png', 'SOL': 'sol.png',
+        'USDC': 'usdc.png', 'USDT': 'usdt.png', 'BNB': 'bnb.png',
+        'VTI': 'vti.png', 'SPY': 'spy.png', 'QQQ': 'qqq.png'
     }
     
-    if symbol in major_cryptos:
-        return f"https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/{major_cryptos[symbol]}.png"
+    filename = logo_map.get(symbol)
+    if filename:
+        b64 = get_logo_base64(filename)
+        if b64:
+            return f"data:image/png;base64,{b64}"
     
-    # Priority 3: Fallback Crypto CDN for smaller tokens
-    if len(symbol) <= 5:
-        return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
-    
-    return placeholders['STOCK']
+    # Fallback to emoji for assets without downloaded logos
+    emoji_map = {
+        'BTC': '₿', 'ETH': 'Ξ', 'SOL': '◎', 'BNB': '🔶',
+        'VTI': '📊', 'BND': '📜', 'GOLD': '🟡', 'BONDS': '📜',
+        'AAPL': '🍎', 'TSLA': '⚡', 'NVDA': '🟩'
+    }
+    return emoji_map.get(symbol, '💰')
 
 def get_protocol_logo(name):
-    """Returns domain-based logo URL for maximum reliability"""
-    domains = {
-        'Jito Staking': 'jito.network',
-        'Raydium Pools': 'raydium.io',
-        'Kamino Vaults': 'kamino.finance',
-        'Marinade Native': 'marinade.finance',
-        'Orca Whirlpools': 'orca.so',
-        'Solend Lending': 'solend.fi',
-        'Marginfi Yield': 'marginfi.com',
-        'Jupiter Aggregator': 'jup.ag'
+    """Returns protocol logo - using emojis as fallback"""
+    # For now use emojis for protocols until we download their logos
+    icons = {
+        'Jito Staking': '🥩', 'Raydium Pools': '🔆',
+        'Kamino Vaults': '⚡', 'Marinade Native': '💧',
+        'Orca Whirlpools': '🐋', 'Solend Lending': '🏦'
     }
-    
-    domain = domains.get(name)
-    if domain:
-        return f"https://logo.clearbit.com/{domain}"
-        
-    return "https://cdn-icons-png.flaticon.com/512/2489/2489756.png"
+    return icons.get(name, '💰')
 
 # Apply professional financial dashboard styling
 apply_custom_styles()
