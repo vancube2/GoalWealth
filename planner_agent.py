@@ -131,34 +131,41 @@ def create_investment_plan(user_profile):
                     else:
                         raise e
 
-        # Model Priority List (Validated for environment)
+        # Model Priority List - Comprehensive for Free/Paid Tiers
         models_to_try = [
-            'models/gemini-1.5-flash', 
-            'models/gemini-1.5-pro',
+            'gemini-2.0-flash',       # Try canonical production name first
+            'gemini-2.0-flash-exp',   # Experimental tier
+            'gemini-1.5-flash',       # Highly reliable fallback
+            'gemini-1.5-pro',
+            'models/gemini-1.5-flash', # Version with prefix
             'models/gemini-2.0-flash-exp'
         ]
         
         response = None
         import time
-        
-        last_error = None
-        
         errors = []
+        
         for model_name in models_to_try:
-            print(f"Attemping to use model: {model_name}...")
             try:
+                print(f"Attemping to use model: {model_name}...")
                 response = generate_with_retry(model_name, prompt)
                 if response:
                     print(f"Success with {model_name}!")
                     break
             except Exception as e:
-                print(f"Failed with {model_name}: {e}")
-                errors.append(f"{model_name}: {str(e)}")
-                # Continue to next model
+                err_msg = str(e)
+                print(f"Failed with {model_name}: {err_msg}")
+                errors.append(f"{model_name}: {err_msg[:50]}")
+                # If it's a quota error, we might want to wait longer or try a different model immediately
+                if "429" in err_msg:
+                    time.sleep(2) # Small break before next model
         
         if not response:
             error_details = " | ".join(errors)
-            return f"Error: All models failed. Details: {error_details}"
+            # Check if it was primarily a quota issue
+            if any("429" in e for e in errors):
+                return "Error: API Quota Exceeded (429). The system is currently under heavy load. Please try again in 1-2 minutes."
+            return f"Error: Strategic analysis engine failed. Details: {error_details}"
             
         plan = response.text
         

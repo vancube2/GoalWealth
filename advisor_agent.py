@@ -268,10 +268,13 @@ def get_investment_advice(question, user_context=None):
                         else:
                             raise e
 
-            # Model Priority List (Validated for environment)
+            # Model Priority List - Comprehensive for Free/Paid Tiers
             models_to_try = [
-                'models/gemini-1.5-flash',
-                'models/gemini-1.5-pro',
+                'gemini-2.0-flash',       # Try canonical production name first
+                'gemini-2.0-flash-exp',   # Experimental tier
+                'gemini-1.5-flash',       # Highly reliable fallback
+                'gemini-1.5-pro',
+                'models/gemini-1.5-flash', # Version with prefix
                 'models/gemini-2.0-flash-exp'
             ]
             
@@ -281,6 +284,7 @@ def get_investment_advice(question, user_context=None):
                     if response:
                         return response.text
                 except Exception as e:
+                    # Continue to next model if not a quota error that we already retried
                     pass
                     
         except Exception as e:

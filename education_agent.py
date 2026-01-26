@@ -72,10 +72,13 @@ def generate_guide(topic, user_level="beginner"):
                     else:
                         raise e
 
-        # Model Priority List (Validated for environment)
+        # Model Priority List - Comprehensive for Free/Paid Tiers
         models_to_try = [
-            'models/gemini-1.5-flash', 
-            'models/gemini-1.5-pro',
+            'gemini-2.0-flash',       # Try canonical production name first
+            'gemini-2.0-flash-exp',   # Experimental tier
+            'gemini-1.5-flash',       # Highly reliable fallback
+            'gemini-1.5-pro',
+            'models/gemini-1.5-flash', # Version with prefix
             'models/gemini-2.0-flash-exp'
         ]
         
