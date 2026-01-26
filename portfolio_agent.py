@@ -33,7 +33,8 @@ def analyze_portfolio_rebalance(holdings, target_risk, user_context):
         1. Analyze the current weighting of assets.
         2. Identify over-concentrations or gaps based on the {target_risk} risk profile.
         3. Recommend SPECIFIC SELL and BUY actions to reach target weights.
-        4. Focus on institutional efficiency.
+        4. CRITICAL: For every execution step, explicitly state how **Arcium's Confidential Computing** should be used to protect trade intent and prevent slippage/front-running during these rebalancing orders.
+        5. Focus on institutional efficiency.
         
         Format as a professional Tactical Rebalance Report in Markdown. Use Bold for Actionable Steps.
         """

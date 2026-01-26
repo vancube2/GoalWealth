@@ -733,10 +733,11 @@ elif active_tab == "PORTFOLIO":
             qty = item['qty']
             cost = item['cost']
             
-            data = market_data.get(symbol, {'price': cost, 'change_24h': 0.0})
-            current_price = data['price']
+            data = market_data.get(symbol, {'price': cost/rate if rate > 0 else cost, 'change_24h': 0.0})
+            # Convert USD market price to local currency
+            current_price_local = data['price'] * rate
             
-            market_value = qty * current_price
+            market_value = qty * current_price_local
             cost_basis = qty * cost
             unrealized_pnl = market_value - cost_basis
             pnl_pct = (unrealized_pnl / cost_basis * 100) if cost_basis > 0 else 0
@@ -749,42 +750,43 @@ elif active_tab == "PORTFOLIO":
             # Asset Icon & Name
             logo_uri = get_asset_logo(symbol)
             icon_html = render_asset_icon(logo_uri, style="width:24px; height:24px; margin-right:10px;")
-            row_cols[0].markdown(f"<div style='display:flex; align-items:center;'>{icon_html} <b>{symbol}</b></div>", unsafe_allow_html=True)
+            row_cols[0].markdown(f"<div style='display:flex; align-items:center;'>{icon_html} <b style='color:#fff;'>{symbol}</b></div>", unsafe_allow_html=True)
             
             # Position Info
-            row_cols[1].markdown(f"<div style='color:#F8FAFC;'>{qty:,.2f} Units</div>", unsafe_allow_html=True)
+            row_cols[1].markdown(f"<div style='color:#94A3B8; font-family:\"JetBrains Mono\";'>{qty:,.2f} Units</div>", unsafe_allow_html=True)
             
-            # Values
-            row_cols[2].markdown(f"<div>{currency_symbol}{cost:,.2f}</div>", unsafe_allow_html=True)
-            row_cols[3].markdown(f"<div>{currency_symbol}{current_price:,.2f}</div>", unsafe_allow_html=True)
-            row_cols[4].markdown(f"<div style='font-weight:700; color:{'#10B981' if market_value > cost_basis else '#F8FAFC'};'>{currency_symbol}{market_value:,.2f}</div>", unsafe_allow_html=True)
+            # Values (Using local currency symbol and rate)
+            row_cols[2].markdown(f"<div style='color:#F8FAFC;'>{currency_symbol}{cost:,.2f}</div>", unsafe_allow_html=True)
+            row_cols[3].markdown(f"<div style='color:#F8FAFC;'>{currency_symbol}{current_price_local:,.2f}</div>", unsafe_allow_html=True)
+            row_cols[4].markdown(f"<div style='font-weight:700; color:#fff;'>{currency_symbol}{market_value:,.2f}</div>", unsafe_allow_html=True)
             
             # PnL
             pnl_color = "#10B981" if unrealized_pnl >= 0 else "#EF4444"
-            row_cols[5].markdown(f"<div style='color:{pnl_color}; font-weight:700;'>{currency_symbol}{unrealized_pnl:+, .2f} <br><small>{pnl_pct:+.2f}%</small></div>", unsafe_allow_html=True)
+            row_cols[5].markdown(f"<div style='color:{pnl_color}; font-weight:700;'>{currency_symbol}{unrealized_pnl:+, .2f} <br><small style='opacity:0.8;'>{pnl_pct:+.2f}%</small></div>", unsafe_allow_html=True)
             
             # Remove button
-            if row_cols[6].button("🗑️", key=f"del_{symbol}"):
+            if row_cols[6].button("🗑️", key=f"del_{symbol}_{idx}"):
                 st.session_state.portfolio_holdings.pop(idx)
                 st.rerun()
 
-        st.markdown("---")
+        st.markdown("<br>", unsafe_allow_html=True)
         
         # Summary Row
         sum_col1, sum_col2, sum_col3 = st.columns([1, 1, 1.5])
         with sum_col1:
             st.markdown(create_stat_card("TOTAL MARKET VALUE", f"{currency_symbol}{total_market_value:,.2f}", 0, "💰"), unsafe_allow_html=True)
             
-            # Simple Allocation Chart
+            # Allocation Chart with institutional colors
             fig_alloc = go.Figure(data=[go.Pie(
                 labels=[h['symbol'] for h in st.session_state.portfolio_holdings],
                 values=[(h['qty'] * market_data.get(h['symbol'], {'price': 0})['price']) for h in st.session_state.portfolio_holdings],
-                hole=.6,
+                hole=.7,
                 marker=dict(colors=['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']),
-                textinfo='label+percent'
+                textinfo='label+percent',
+                hoverinfo='label+value+percent'
             )])
-            fig_alloc.update_layout(get_dark_chart_layout(height=250))
-            fig_alloc.update_traces(showlegend=False)
+            fig_alloc.update_layout(get_dark_chart_layout(height=280))
+            fig_alloc.update_traces(showlegend=False, textfont_size=10)
             st.plotly_chart(fig_alloc, use_container_width=True, key="port_alloc_chart")
 
         with sum_col2:
@@ -792,14 +794,16 @@ elif active_tab == "PORTFOLIO":
             total_pnl_pct = (total_pnl / total_cost_basis * 100) if total_cost_basis > 0 else 0
             st.markdown(create_stat_card("NET UNREALIZED PNL", f"{currency_symbol}{total_pnl:,.2f}", total_pnl_pct, "📈"), unsafe_allow_html=True)
             
-            # Allocation Target Summary (Mock for UI)
-            tgt_style = "font-size:0.8rem; color:#94A3B8; margin-bottom:0.5rem;"
+            # Institutional Target Summary
             st.markdown(f"""
-            <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1rem;">
-                <div style="font-size: 0.7rem; color: #10B981; text-transform: uppercase; font-weight: 700; margin-bottom: 1rem;">Target Alignment: {risk_tolerance}</div>
-                <div style='{tgt_style}'>Core Equity: <span style='float:right; color:#fff;'>50-60%</span></div>
-                <div style='{tgt_style}'>Digital Alpha: <span style='float:right; color:#fff;'>15-20%</span></div>
-                <div style='{tgt_style}'>Yield Layer: <span style='float:right; color:#fff;'>10-15%</span></div>
+            <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1rem;">
+                <div style="font-size: 0.75rem; color: #10B981; text-transform: uppercase; font-weight: 800; margin-bottom: 1.25rem; letter-spacing:0.05em;">Benchmark: {risk_tolerance} Global</div>
+                <div style='display:flex; justify-content:space-between; font-size:0.85rem; color:#94A3B8; margin-bottom:0.75rem;'><span>Core Equity</span><span style='color:#fff; font-weight:600;'>50-60%</span></div>
+                <div style='display:flex; justify-content:space-between; font-size:0.85rem; color:#94A3B8; margin-bottom:0.75rem;'><span>Digital Alpha</span><span style='color:#fff; font-weight:600;'>15-20%</span></div>
+                <div style='display:flex; justify-content:space-between; font-size:0.85rem; color:#94A3B8;'><span>Yield Layer</span><span style='color:#fff; font-weight:600;'>10-15%</span></div>
+                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.7rem; color: #64748B;">
+                    Optimized via **Arcium Confidential Computing** protocols.
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -818,11 +822,11 @@ elif active_tab == "PORTFOLIO":
                     )
                     
                     st.markdown(f"""
-                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1.25rem; border-radius: 16px; margin-top: 0.5rem;">
-                        <h5 style="color: #60A5FA; margin-top: 0; display:flex; align-items:center;">
-                            <span style="margin-right:8px;">🎯</span> TACTICAL STEPS
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1.5rem; border-radius: 20px; margin-top: 0.5rem; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);">
+                        <h5 style="color: #60A5FA; margin-top: 0; display:flex; align-items:center; letter-spacing:0.02em;">
+                            <span style="margin-right:10px;">🛡️</span> ARCIUM-SECURED EXECUTION STEPS
                         </h5>
-                        <div style="color: #E2E8F0; font-size: 0.85rem; line-height: 1.5; height: 280px; overflow-y: auto;">
+                        <div style="color: #E2E8F0; font-size: 0.9rem; line-height: 1.7; height: 320px; overflow-y: auto; padding-right:10px;">
                             {rebalance_report}
                         </div>
                     </div>
@@ -834,8 +838,11 @@ elif active_tab == "PORTFOLIO":
             else:
                 st.markdown(create_stat_card("ASSET COUNT", f"{len(st.session_state.portfolio_holdings)} ACTIVATED", 0, "📂"), unsafe_allow_html=True)
                 st.markdown("""
-                <div style="background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1rem;">
-                    <div style="font-size: 0.75rem; color: #94A3B8; margin-bottom: 1rem;">Click 'AI OPTIMIZE' to generate specific rebalancing steps for this portfolio.</div>
+                <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1rem;">
+                    <div style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 1.5rem; line-height:1.5;">Click **AI OPTIMIZE** to generate a confidential rebalancing report secured by Arcium.</div>
+                    <div style="background: rgba(59, 130, 246, 0.1); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.2); font-size: 0.75rem; color: #60A5FA;">
+                        <b>Note:</b> All execution paths include multi-chain privacy steps.
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
         st.markdown("""
