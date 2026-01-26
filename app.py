@@ -762,7 +762,7 @@ elif active_tab == "PORTFOLIO":
             
             # PnL
             pnl_color = "#10B981" if unrealized_pnl >= 0 else "#EF4444"
-            row_cols[5].markdown(f"<div style='color:{pnl_color}; font-weight:700;'>{currency_symbol}{unrealized_pnl:+, .2f} <br><small style='opacity:0.8;'>{pnl_pct:+.2f}%</small></div>", unsafe_allow_html=True)
+            row_cols[5].markdown(f"<div style='color:{pnl_color}; font-weight:700;'>{currency_symbol}{unrealized_pnl:+,.2f} <br><small style='opacity:0.8;'>{pnl_pct:+.2f}%</small></div>", unsafe_allow_html=True)
             
             # Remove button
             if row_cols[6].button("🗑️", key=f"del_{symbol}_{idx}"):
