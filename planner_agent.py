@@ -171,8 +171,10 @@ def create_investment_plan(user_profile):
         return plan
         
     except Exception as e:
-        print(f"ERROR: {e}")
-        return f"Error generating plan: {str(e)}"
+        error_str = str(e)
+        if "429" in error_str:
+            return "Error: API Quota Exceeded (429). Please try again later."
+        return f"Error: {error_str[:100]}..."
 
 
 if __name__ == "__main__":

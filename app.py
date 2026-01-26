@@ -474,9 +474,19 @@ if active_tab == "DASHBOARD":
         
     elif 'plan_error' in st.session_state and st.session_state['plan_error']:
         st.markdown("---")
-        st.error("Plan Generation Failed")
-        st.caption(f"Error details: {st.session_state['plan_error']}")
-        if st.button("Retry Generation"):
+        st.markdown("### ⚠️ Strategic Analysis Paused")
+        
+        # Determine if it's a quota issue
+        error_msg = str(st.session_state['plan_error'])
+        if "429" in error_msg or "quota" in error_msg.lower():
+            st.warning("Daily capacity reached. Please try again in 24 hours or upgrade your Gemini API tier.")
+        else:
+            st.error("An unexpected error occurred during strategy generation.")
+            
+        with st.expander("Technical Insight"):
+            st.caption(f"Error Code: {error_msg}")
+            
+        if st.button("Attempt Re-analysis"):
             st.session_state.pop('plan_error', None)
             st.rerun()
 
