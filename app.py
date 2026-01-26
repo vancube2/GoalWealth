@@ -33,22 +33,43 @@ def get_asset_logo(symbol):
     """Returns local logo as base64 data URI"""
     symbol = symbol.upper()
     
-    # Map symbols to local logo files
+    # Map symbols to local logo files - GLOBAL SCALE
     logo_map = {
+        # Crypto
         'BTC': 'btc.png', 'ETH': 'eth.png', 'SOL': 'sol.png',
-        'USDC': 'usdc.png', 'USDT': 'usdt.png', 'BNB': 'bnb.png',
+        'BNB': 'bnb.png', 'XRP': 'xrp.png', 'ADA': 'ada.png',
+        'AVAX': 'avax.png', 'LINK': 'link.png', 'DOT': 'dot.png',
         'JUP': 'jup.png', 'RAY': 'ray.png', 'JITO': 'jito.png',
-        'XRP': 'xrp.png', 'ADA': 'ada.png', 'AVAX': 'avax.png',
-        'LINK': 'link.png', 'DOT': 'dot.png', 'GOLD': 'gold.png',
+        'MSOL': 'msol.png', 'PYTH': 'pyth.png', 'BONK': 'bonk.png',
+        'USDC': 'usdc.png', 'USDT': 'usdt.png',
+        
+        # Major US Stocks
+        'AAPL': 'aapl.png', 'MSFT': 'msft.png', 'NVDA': 'nvda.png',
+        'GOOGL': 'googl.png', 'AMZN': 'amzn.png', 'META': 'meta.png',
+        'TSLA': 'tsla.png', 'BRK-B': 'brk-b.png', 'V': 'v.png',
+        'MA': 'ma.png', 'UNH': 'unh.png', 'JNJ': 'jnj.png',
+        'JPM': 'jpm.png', 'WMT': 'wmt.png', 'XOM': 'xom.png',
+        'CVX': 'cvx.png', 'AMD': 'amd.png', 'NFLX': 'nflx.png',
+        'DIS': 'dis.png', 'COST': 'cost.png', 'GS': 'gs.png',
+        'HD': 'hd.png', 'PEP': 'pep.png', 'KO': 'ko.png',
+        
+        # Global Stocks
+        'ASML': 'asml.png', 'SAP': 'sap.png', 'SAMSUNG': 'samsung.png',
+        'TOYOTA': 'tm.png', 'SONY': 'sony.png', 'LVMH': 'mc.png',
+        'HSBA': 'hsba.png', 'BP': 'bp.png',
+        
+        # ETFs
         'VTI': 'vti.png', 'SPY': 'spy.png', 'QQQ': 'qqq.png',
-        'AAPL': 'aapl.png', 'NVDA': 'nvda.png', 'TSLA': 'tsla.png',
-        'MSFT': 'msft.png', 'AMZN': 'amzn.png', 'GOOGL': 'googl.png',
-        'META': 'meta.png', 'NFLX': 'nflx.png', 'AMD': 'amd.png',
-        'INTC': 'intc.png', 'JPM': 'jpm.png', 'GS': 'gs.png',
-        'XOM': 'xom.png', 'CVX': 'cvx.png', 'DIA': 'dia.png',
-        'VNQ': 'vnq.png', 'USO': 'uso.png', 'GDX': 'gdx.png',
-        'VT': 'vt.png', 'TLT': 'tlt.png', 'BONDS': 'tlt.png',
-        'BRK-B': 'brk-b.png'
+        'DIA': 'dia.png', 'VNQ': 'vnq.png', 'VWO': 'vwo.png',
+        'EFA': 'efa.png', 'EWJ': 'ewj.png', 'EWG': 'ewg.png',
+        'IVV': 'ivv.png', 'VOO': 'voo.png', 'TLT': 'tlt.png',
+        'BND': 'bnd.png', 'USO': 'uso.png', 'GDX': 'gdx.png',
+        'VT': 'vt.png', 'GLD': 'gld.png', 'GOLD': 'gold.png',
+        'SILVER': 'silver.png', 'OIL': 'oil.png',
+        
+        # Currencies (Mapped from icons)
+        'USD': 'usdc.png', 'EUR': 'eur.png', 'GBP': 'gbp.png',
+        'JPY': 'jpy.png', 'NGN': 'ngn.png'
     }
     
     filename = logo_map.get(symbol)
@@ -67,15 +88,22 @@ def get_asset_logo(symbol):
 
 def get_protocol_logo(name):
     """Returns protocol logo - using local files if available else emojis"""
-    # Map names to symbols or files
+    # Map names/symbols to files
     protocol_map = {
         'Jito Staking': 'jito.png',
+        'Jitovaults': 'jito.png',
         'Raydium Pools': 'ray.png',
+        'Raydium': 'ray.png',
         'Kamino Vaults': 'kamino.png',
+        'Kamino': 'kamino.png',
         'Orca Whirlpools': 'orca.png',
+        'Orca': 'orca.png',
         'Marinade Native': 'marinade.png',
+        'Marinade': 'marinade.png',
         'Solend Lending': 'solend.png',
-        'Marginfi Yield': 'marginfi.png'
+        'Solend': 'solend.png',
+        'Marginfi Yield': 'marginfi.png',
+        'Marginfi': 'marginfi.png'
     }
     
     filename = protocol_map.get(name)

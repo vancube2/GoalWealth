@@ -10,12 +10,16 @@ def get_live_market_data():
         'BTC': 'BTC-USD', 'ETH': 'ETH-USD', 'SOL': 'SOL-USD',
         'BNB': 'BNB-USD', 'XRP': 'XRP-USD', 'ADA': 'ADA-USD',
         'AVAX': 'AVAX-USD', 'LINK': 'LINK-USD', 'DOT': 'DOT-USD',
-        'VTI': 'VTI', 'GOLD': 'GC=F', 'BONDS': 'TLT',
-        'AAPL': 'AAPL', 'NVDA': 'NVDA', 'TSLA': 'TSLA', 'MSFT': 'MSFT',
-        'AMZN': 'AMZN', 'GOOGL': 'GOOGL', 'META': 'META', 'NFLX': 'NFLX',
-        'AMD': 'AMD', 'INTC': 'INTC', 'JPM': 'JPM', 'GS': 'GS',
-        'XOM': 'XOM', 'CVX': 'CVX', 'BRK-B': 'BRK-B', 'SPY': 'SPY',
-        'QQQ': 'QQQ', 'DIA': 'DIA', 'VNQ': 'VNQ', 'USO': 'USO', 'GDX': 'GDX', 'VT': 'VT'
+        'SOL': 'SOL-USD', 'JUP': 'JUP-USD', 'PYTH': 'PYTH-USD',
+        'VTI': 'VTI', 'GOLD': 'GC=F', 'SILVER': 'SI=F',
+        'AAPL': 'AAPL', 'MSFT': 'MSFT', 'NVDA': 'NVDA', 
+        'TSLA': 'TSLA', 'AMZN': 'AMZN', 'GOOGL': 'GOOGL', 
+        'META': 'META', 'BRK-B': 'BRK-B', 'UNH': 'UNH',
+        'V': 'V', 'MA': 'MA', 'JPM': 'JPM', 'GS': 'GS',
+        'ASML': 'ASML', 'SAP': 'SAP', 'SAMSUNG': '005930.KS',
+        'TOYOTA': 'TM', 'SONY': 'SONY', 'LVMH': 'MC.PA',
+        'VWO': 'VWO', 'EFA': 'EFA', 'EWJ': 'EWJ', 'EWG': 'EWG',
+        'SPY': 'SPY', 'QQQ': 'QQQ', 'DIA': 'DIA', 'VNQ': 'VNQ'
     }
     
     data = {}
