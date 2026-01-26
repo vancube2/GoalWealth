@@ -16,11 +16,10 @@ from voice_processor import extract_profile_from_voice, process_voice_advisor_qu
 from live_data import get_live_market_data, get_defi_yields, get_portfolio_growth_projection
 
 def get_asset_logo(symbol):
-    """Returns reliable professional logo URL for assets with multi-layer fallbacks"""
+    """Returns ultra-reliable professional logo URL with domain-based and GitHub-hosted sources"""
     symbol = symbol.upper()
     
-    # Strictly defined asset classifications
-    crypto_tickers = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'AVAX', 'LINK', 'DOT', 'USDC', 'USDT', 'JTO', 'RAY', 'MNDE', 'MSOL', 'SLND', 'ORCA', 'JUP', 'KAMINO']
+    # Major Stocks and ETFs - Direct Routing to known working CDN
     stock_tickers = ['VTI', 'BND', 'VXUS', 'VNQ', 'GLD', 'AAPL', 'TSLA', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'NFLX', 'AMD', 'INTC', 'JPM', 'GS', 'XOM', 'CVX', 'BRK-B', 'SPY', 'QQQ', 'DIA', 'GDX', 'USO', 'VT']
     
     placeholders = {
@@ -35,35 +34,44 @@ def get_asset_logo(symbol):
     elif symbol == 'BONDS':
         return placeholders['BONDS']
     
-    # Priority 1: High reliability Stock CDN (Explicitly check stocks first to avoid ETF routing errors)
+    # Priority 1: High reliability Stock CDN
     if symbol in stock_tickers:
         return f"https://financialmodelingprep.com/image-stock/{symbol}.png"
     
-    # Priority 2: High reliability Crypto CDN
-    if symbol in crypto_tickers:
-        return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
+    # Priority 2: Standard GitHub-hosted Crypto Icons (Transparent 32x32)
+    # These are very stable and less likely to 404 than live APIs
+    major_cryptos = {
+        'BTC': 'btc', 'ETH': 'eth', 'SOL': 'sol', 
+        'USDC': 'usdc', 'USDT': 'usdt', 'BNB': 'bnb', 
+        'XRP': 'xrp', 'ADA': 'ada', 'AVAX': 'avax', 
+        'DOT': 'dot', 'LINK': 'link', 'MATIC': 'matic'
+    }
     
-    # Priority 3: Common Cryptos (Generic length heuristic as last resort)
+    if symbol in major_cryptos:
+        return f"https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/{major_cryptos[symbol]}.png"
+    
+    # Priority 3: Fallback Crypto CDN for smaller tokens
     if len(symbol) <= 5:
         return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
     
     return placeholders['STOCK']
 
 def get_protocol_logo(name):
-    """Returns reliable logo URL for DeFi protocols using token-based icons"""
-    protocol_to_ticker = {
-        'Jito Staking': 'JTO',
-        'Raydium Pools': 'RAY',
-        'Kamino Vaults': 'KAMINO',
-        'Marinade Native': 'MSOL',
-        'Orca Whirlpools': 'ORCA',
-        'Solend Lending': 'SLND',
-        'Marginfi Yield': 'MFI'
+    """Returns domain-based logo URL for maximum reliability"""
+    domains = {
+        'Jito Staking': 'jito.network',
+        'Raydium Pools': 'raydium.io',
+        'Kamino Vaults': 'kamino.finance',
+        'Marinade Native': 'marinade.finance',
+        'Orca Whirlpools': 'orca.so',
+        'Solend Lending': 'solend.fi',
+        'Marginfi Yield': 'marginfi.com',
+        'Jupiter Aggregator': 'jup.ag'
     }
     
-    ticker = protocol_to_ticker.get(name)
-    if ticker:
-        return get_asset_logo(ticker)
+    domain = domains.get(name)
+    if domain:
+        return f"https://logo.clearbit.com/{domain}"
         
     return "https://cdn-icons-png.flaticon.com/512/2489/2489756.png"
 
@@ -336,7 +344,7 @@ if active_tab == "DASHBOARD":
             
             item_html = (
                 f'<div class="ticker-item">'
-                f'<img src="{logo_url}" class="ticker-logo" onerror="this.onerror=null;this.src=\'{fallback_img}\'">'
+                f'<img src="{logo_url}" class="ticker-logo" onerror="this.onerror=null;this.src=\'{fallback_img}\';">'
                 f'<span class="ticker-symbol">{symbol}</span>'
                 f'<span class="ticker-price">${details["price"]:,.2f}</span>'
                 f'<span class="ticker-change {change_class}">{arrow} {abs(details["change_24h"]):.2f}%</span>'
@@ -420,7 +428,7 @@ if active_tab == "DASHBOARD":
             item_html = (
                 f'<div class="yield-card">'
                 f'<div class="yield-card-left">'
-                f'<img src="{logo_url}" class="yield-logo" style="margin-right:12px;" onerror="this.onerror=null;this.src=\'{fallback_img}\'">'
+                f'<img src="{logo_url}" class="yield-logo" style="margin-right:12px;" onerror="this.onerror=null;this.src=\'{fallback_img}\';">'
                 f'<div><div class="yield-name">{protocol}</div><div class="yield-tvl">TVL: {info["tvl"]}</div></div>'
                 f'</div>'
                 f'<div class="yield-apy">{info["apy"]}%</div>'
