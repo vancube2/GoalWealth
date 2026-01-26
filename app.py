@@ -19,16 +19,10 @@ def get_asset_logo(symbol):
     """Returns reliable professional logo URL for assets with multi-layer fallbacks"""
     symbol = symbol.upper()
     
-    # Mapping for common tickers
-    crypto_map = {
-        'BTC': 'bitcoin', 'ETH': 'ethereum', 'SOL': 'solana',
-        'BNB': 'binance-coin', 'XRP': 'xrp', 'ADA': 'cardano',
-        'AVAX': 'avalanche', 'LINK': 'chainlink', 'DOT': 'polkadot',
-        'USDC': 'usd-coin', 'USDT': 'tether', 'JTO': 'jito',
-        'RAY': 'raydium', 'MNDE': 'marinade', 'SLND': 'solend',
-        'ORCA': 'orca', 'JUP': 'jupiter', 'KAMINO': 'kamino'
-    }
-
+    # Strictly defined asset classifications
+    crypto_tickers = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'AVAX', 'LINK', 'DOT', 'USDC', 'USDT', 'JTO', 'RAY', 'MNDE', 'MSOL', 'SLND', 'ORCA', 'JUP', 'KAMINO']
+    stock_tickers = ['VTI', 'BND', 'VXUS', 'VNQ', 'GLD', 'AAPL', 'TSLA', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'NFLX', 'AMD', 'INTC', 'JPM', 'GS', 'XOM', 'CVX', 'BRK-B', 'SPY', 'QQQ', 'DIA', 'GDX', 'USO', 'VT']
+    
     placeholders = {
         'CRYPTO': "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
         'STOCK': "https://cdn-icons-png.flaticon.com/512/2103/2103601.png",
@@ -41,13 +35,20 @@ def get_asset_logo(symbol):
     elif symbol == 'BONDS':
         return placeholders['BONDS']
     
-    # Try Coincap for anything that looks like a crypto ticker
-    if symbol in crypto_map or len(symbol) <= 5:
-        # Coincap icons use the lowercase ticker
+    # Priority 1: High reliability Crypto CDN
+    if symbol in crypto_tickers:
+        # Coincap uses specific lowercase ID system, but often handles ticker directly
         return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
     
-    # Default to stock/ETF logo
-    return f"https://financialmodelingprep.com/image-stock/{symbol}.png"
+    # Priority 2: High reliability Stock CDN
+    if symbol in stock_tickers:
+        return f"https://financialmodelingprep.com/image-stock/{symbol}.png"
+    
+    # Catch-all based on length (heuristics)
+    if len(symbol) <= 5:
+        return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
+    
+    return placeholders['STOCK']
 
 def get_protocol_logo(name):
     """Returns reliable logo URL for DeFi protocols using token-based icons"""
@@ -55,7 +56,7 @@ def get_protocol_logo(name):
         'Jito Staking': 'JTO',
         'Raydium Pools': 'RAY',
         'Kamino Vaults': 'KAMINO',
-        'Marinade Native': 'MNDE',
+        'Marinade Native': 'MSOL',
         'Orca Whirlpools': 'ORCA',
         'Solend Lending': 'SLND',
         'Marginfi Yield': 'MFI'
@@ -271,10 +272,12 @@ with st.sidebar:
                 else:
                     logo_url = get_asset_logo(asset_key)
                 
+                fallback_img = "https://cdn-icons-png.flaticon.com/512/2489/2489756.png"
+                
                 with st.expander(f"✨ {opp['type']}", expanded=True):
                     st.markdown(f"""
                     <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
-                        <img src="{logo_url}" class="ticker-logo" style="width:20px; height:20px; margin-right:8px;">
+                        <img src="{logo_url}" class="ticker-logo" style="width:20px; height:20px; margin-right:8px;" onerror="this.onerror=null;this.src=\'{fallback_img}\'">'
                         <strong style='color:#F8FAFC'>{opp['asset']}</strong>
                     </div>
                     """, unsafe_allow_html=True)
@@ -330,10 +333,11 @@ if active_tab == "DASHBOARD":
             change_class = "change-up" if details['change_24h'] >= 0 else "change-down"
             arrow = "▲" if details['change_24h'] >= 0 else "▼"
             logo_url = get_asset_logo(symbol)
+            fallback_img = "https://cdn-icons-png.flaticon.com/512/2489/2489756.png"
             
             item_html = (
                 f'<div class="ticker-item">'
-                f'<img src="{logo_url}" class="ticker-logo">'
+                f'<img src="{logo_url}" class="ticker-logo" onerror="this.onerror=null;this.src=\'{fallback_img}\'">'
                 f'<span class="ticker-symbol">{symbol}</span>'
                 f'<span class="ticker-price">${details["price"]:,.2f}</span>'
                 f'<span class="ticker-change {change_class}">{arrow} {abs(details["change_24h"]):.2f}%</span>'
@@ -413,10 +417,11 @@ if active_tab == "DASHBOARD":
         yield_items = []
         for protocol, info in defi_results.items():
             logo_url = get_protocol_logo(protocol)
+            fallback_img = "https://cdn-icons-png.flaticon.com/512/2489/2489756.png"
             item_html = (
                 f'<div class="yield-card">'
                 f'<div class="yield-card-left">'
-                f'<img src="{logo_url}" class="yield-logo" style="margin-right:12px;">'
+                f'<img src="{logo_url}" class="yield-logo" style="margin-right:12px;" onerror="this.onerror=null;this.src=\'{fallback_img}\'">'
                 f'<div><div class="yield-name">{protocol}</div><div class="yield-tvl">TVL: {info["tvl"]}</div></div>'
                 f'</div>'
                 f'<div class="yield-apy">{info["apy"]}%</div>'

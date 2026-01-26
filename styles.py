@@ -552,7 +552,8 @@ def create_stat_card(title, value, change=None, logo_url=None):
 
     logo_html = ""
     if logo_url:
-        logo_html = f'<img src="{logo_url}" class="stat-logo">'
+        # Use simple reliable fallback via standard placeholder if main fails
+        logo_html = f'<img src="{logo_url}" class="stat-logo" onerror="this.onerror=null;this.src=\'https://cdn-icons-png.flaticon.com/512/2489/2489756.png\'">'
 
     return f"""<div style="{create_glass_card()}">
         {logo_html}
