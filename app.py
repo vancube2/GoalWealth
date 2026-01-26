@@ -16,10 +16,19 @@ from voice_processor import extract_profile_from_voice, process_voice_advisor_qu
 from live_data import get_live_market_data, get_defi_yields, get_portfolio_growth_projection
 
 def get_asset_logo(symbol):
-    """Returns reliable professional logo URL for assets with fallbacks"""
+    """Returns reliable professional logo URL for assets with multi-layer fallbacks"""
     symbol = symbol.upper()
     
-    # Generic placeholders based on type
+    # Mapping for common tickers
+    crypto_map = {
+        'BTC': 'bitcoin', 'ETH': 'ethereum', 'SOL': 'solana',
+        'BNB': 'binance-coin', 'XRP': 'xrp', 'ADA': 'cardano',
+        'AVAX': 'avalanche', 'LINK': 'chainlink', 'DOT': 'polkadot',
+        'USDC': 'usd-coin', 'USDT': 'tether', 'JTO': 'jito',
+        'RAY': 'raydium', 'MNDE': 'marinade', 'SLND': 'solend',
+        'ORCA': 'orca', 'JUP': 'jupiter', 'KAMINO': 'kamino'
+    }
+
     placeholders = {
         'CRYPTO': "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
         'STOCK': "https://cdn-icons-png.flaticon.com/512/2103/2103601.png",
@@ -27,31 +36,36 @@ def get_asset_logo(symbol):
         'BONDS': "https://cdn-icons-png.flaticon.com/512/2845/2845927.png"
     }
 
-    crypto_assets = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'AVAX', 'LINK', 'DOT']
-    
-    if symbol in crypto_assets:
-        # Use Coincap assets - very reliable
-        return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
-    elif symbol == 'GOLD':
+    if symbol == 'GOLD':
         return placeholders['GOLD']
     elif symbol == 'BONDS':
         return placeholders['BONDS']
-    else:
-        # Use Clearbit for stocks if possible, fallback to FinancialModelingPrep
-        return f"https://financialmodelingprep.com/image-stock/{symbol}.png"
+    
+    # Try Coincap for anything that looks like a crypto ticker
+    if symbol in crypto_map or len(symbol) <= 5:
+        # Coincap icons use the lowercase ticker
+        return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
+    
+    # Default to stock/ETF logo
+    return f"https://financialmodelingprep.com/image-stock/{symbol}.png"
 
 def get_protocol_logo(name):
-    """Returns reliable logo URL for DeFi protocols"""
-    logos = {
-        'Jito Staking': 'https://www.jito.network/favicon.ico',
-        'Raydium Pools': 'https://raydium.io/favicon.ico',
-        'Kamino Vaults': 'https://app.kamino.finance/favicon.ico',
-        'Marinade Native': 'https://marinade.finance/favicon.ico',
-        'Orca Whirlpools': 'https://www.orca.so/favicon.ico',
-        'Solend Lending': 'https://solend.fi/favicon.ico',
-        'Marginfi Yield': 'https://app.marginfi.com/favicon.ico'
+    """Returns reliable logo URL for DeFi protocols using token-based icons"""
+    protocol_to_ticker = {
+        'Jito Staking': 'JTO',
+        'Raydium Pools': 'RAY',
+        'Kamino Vaults': 'KAMINO',
+        'Marinade Native': 'MNDE',
+        'Orca Whirlpools': 'ORCA',
+        'Solend Lending': 'SLND',
+        'Marginfi Yield': 'MFI'
     }
-    return logos.get(name, "https://cdn-icons-png.flaticon.com/512/2489/2489756.png")
+    
+    ticker = protocol_to_ticker.get(name)
+    if ticker:
+        return get_asset_logo(ticker)
+        
+    return "https://cdn-icons-png.flaticon.com/512/2489/2489756.png"
 
 # Apply professional financial dashboard styling
 apply_custom_styles()
