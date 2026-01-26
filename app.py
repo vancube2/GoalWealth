@@ -37,7 +37,17 @@ def get_asset_logo(symbol):
     logo_map = {
         'BTC': 'btc.png', 'ETH': 'eth.png', 'SOL': 'sol.png',
         'USDC': 'usdc.png', 'USDT': 'usdt.png', 'BNB': 'bnb.png',
-        'VTI': 'vti.png', 'SPY': 'spy.png', 'QQQ': 'qqq.png'
+        'JUP': 'jup.png', 'RAY': 'ray.png', 'JITO': 'jito.png',
+        'XRP': 'xrp.png', 'ADA': 'ada.png', 'AVAX': 'avax.png',
+        'LINK': 'link.png', 'DOT': 'dot.png',
+        'VTI': 'vti.png', 'SPY': 'spy.png', 'QQQ': 'qqq.png',
+        'AAPL': 'aapl.png', 'NVDA': 'nvda.png', 'TSLA': 'tsla.png',
+        'MSFT': 'msft.png', 'AMZN': 'amzn.png', 'GOOGL': 'googl.png',
+        'META': 'meta.png', 'NFLX': 'nflx.png', 'AMD': 'amd.png',
+        'INTC': 'intc.png', 'JPM': 'jpm.png', 'GS': 'gs.png',
+        'XOM': 'xom.png', 'CVX': 'cvx.png', 'DIA': 'dia.png',
+        'VNQ': 'vnq.png', 'USO': 'uso.png', 'GDX': 'gdx.png',
+        'VT': 'vt.png', 'TLT': 'tlt.png', 'BONDS': 'tlt.png'
     }
     
     filename = logo_map.get(symbol)
@@ -55,14 +65,35 @@ def get_asset_logo(symbol):
     return emoji_map.get(symbol, '💰')
 
 def get_protocol_logo(name):
-    """Returns protocol logo - using emojis as fallback"""
-    # For now use emojis for protocols until we download their logos
+    """Returns protocol logo - using local files if available else emojis"""
+    # Map names to symbols or files
+    protocol_map = {
+        'Jito Staking': 'jito.png',
+        'Raydium Pools': 'ray.png',
+        'Kamino Vaults': 'kamino.png', # Placeholder if kamino not in download
+        'Orca Whirlpools': 'orca.png'
+    }
+    
+    filename = protocol_map.get(name)
+    if filename:
+        b64 = get_logo_base64(filename)
+        if b64:
+            return f"data:image/png;base64,{b64}"
+
     icons = {
         'Jito Staking': '🥩', 'Raydium Pools': '🔆',
         'Kamino Vaults': '⚡', 'Marinade Native': '💧',
         'Orca Whirlpools': '🐋', 'Solend Lending': '🏦'
     }
     return icons.get(name, '💰')
+
+def render_asset_icon(icon_val, class_name="ticker-logo", style=""):
+    """Helper to render either a base64 img or an emoji div correctly"""
+    if isinstance(icon_val, str) and icon_val.startswith('data:image'):
+        return f'<img src="{icon_val}" class="{class_name}" style="{style}">'
+    else:
+        # It's an emoji
+        return f'<div class="ticker-icon" style="display:inline-block; {style}">{icon_val}</div>'
 
 # Apply professional financial dashboard styling
 apply_custom_styles()
@@ -271,9 +302,10 @@ with st.sidebar:
                 fallback_img = "https://cdn-icons-png.flaticon.com/512/2489/2489756.png"
                 
                 with st.expander(f"✨ {opp['type']}", expanded=True):
+                    icon_html = render_asset_icon(logo_url, style="width:20px; height:20px; margin-right:8px;")
                     st.markdown(f"""
                     <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
-                        <img src="{logo_url}" class="ticker-logo" style="width:20px; height:20px; margin-right:8px;" onerror="this.onerror=null;this.src=\'{fallback_img}\';">
+                        {icon_html}
                         <strong style='color:#F8FAFC'>{opp['asset']}</strong>
                     </div>
                     """, unsafe_allow_html=True)
@@ -329,12 +361,7 @@ if active_tab == "DASHBOARD":
             change_class = "change-up" if details['change_24h'] >= 0 else "change-down"
             arrow = "▲" if details['change_24h'] >= 0 else "▼"
             logo = get_asset_logo(symbol)
-            
-            # Check if it's a base64 image or emoji
-            if logo.startswith('data:image'):
-                icon_html = f'<img src="{logo}" class="ticker-logo">'
-            else:
-                icon_html = f'<div class="ticker-icon">{logo}</div>'
+            icon_html = render_asset_icon(logo)
             
             item_html = (
                 f'<div class="ticker-item">'
@@ -418,11 +445,11 @@ if active_tab == "DASHBOARD":
         yield_items = []
         for protocol, info in defi_results.items():
             logo_url = get_protocol_logo(protocol)
-            fallback_img = "https://cdn-icons-png.flaticon.com/512/2489/2489756.png"
+            icon_html = render_asset_icon(logo_url, class_name="yield-logo", style="margin-right:12px;")
             item_html = (
                 f'<div class="yield-card">'
                 f'<div class="yield-card-left">'
-                f'<img src="{logo_url}" class="yield-logo" style="margin-right:12px;" onerror="this.onerror=null;this.src=\'{fallback_img}\';">'
+                f'{icon_html}'
                 f'<div><div class="yield-name">{protocol}</div><div class="yield-tvl">TVL: {info["tvl"]}</div></div>'
                 f'</div>'
                 f'<div class="yield-apy">{info["apy"]}%</div>'
