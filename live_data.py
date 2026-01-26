@@ -233,7 +233,7 @@ def get_strategy_vaults():
             'risk': 'Low',
             'tvl': '$14.2M',
             'status': 'Active',
-            'logo': '◎'
+            'logo': 'SOL'
         },
         {
             'name': 'Global Blue Chip',
@@ -242,7 +242,7 @@ def get_strategy_vaults():
             'risk': 'Medium',
             'tvl': '$28.5M',
             'status': 'Active',
-            'logo': '🌍'
+            'logo': 'VT'
         },
         {
             'name': 'DeFi Degenerate',
@@ -251,6 +251,6 @@ def get_strategy_vaults():
             'risk': 'High',
             'tvl': '$6.8M',
             'status': 'Live',
-            'logo': '🚀'
+            'logo': 'RAY'
         }
     ]

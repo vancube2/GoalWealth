@@ -494,6 +494,7 @@ if active_tab == "DASHBOARD":
         v_cols = st.columns(3)
         for i, vault in enumerate(vaults):
             with v_cols[i]:
+                logo_uri = get_asset_logo(vault['logo'])
                 st.markdown(create_vault_card(
                     vault['name'], 
                     vault['description'], 
@@ -501,7 +502,7 @@ if active_tab == "DASHBOARD":
                     vault['risk'], 
                     vault['tvl'],
                     vault['status'],
-                    vault['logo']
+                    logo_uri
                 ), unsafe_allow_html=True)
     
     with col2:
