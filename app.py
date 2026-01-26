@@ -148,6 +148,8 @@ def get_dark_chart_layout(height=350):
 # Hero section (only show once per session)
 if 'welcomed' not in st.session_state:
     st.session_state.welcomed = True
+if 'is_pro' not in st.session_state:
+    st.session_state.is_pro = False
     st.markdown(create_hero_section(), unsafe_allow_html=True)
 else:
     # Smaller header for subsequent visits
@@ -233,6 +235,25 @@ with st.sidebar:
     
     st.markdown("###")
     
+    # --- Membership Status ---
+    if not st.session_state.is_pro:
+        st.markdown(f"""
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem;">
+            <div style="font-size: 0.65rem; color: #F59E0B; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Institutional Pro</div>
+            <p style="font-size: 0.8rem; color: #E2E8F0; margin-bottom: 1rem; line-height: 1.4;">Unlock strategic audits and unlimited assets for <b>$49/mo</b>.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("GO INSTITUTIONAL", use_container_width=True, type="primary"):
+            st.session_state.is_pro = True
+            st.rerun()
+    else:
+        st.markdown("""
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 1.25rem; border-radius: 12px; margin-bottom: 2rem;">
+            <div style="font-size: 0.65rem; color: #10B981; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Membership: Active</div>
+            <p style="font-size: 0.8rem; color: #E2E8F0; margin-bottom: 0; line-height: 1.4;">You have full institutional access.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
     # Personal Information
     st.caption("PERSONAL DETAILS")
     col1, col2 = st.columns(2)
@@ -248,6 +269,8 @@ with st.sidebar:
     # Financial Details
     st.markdown("###")
     st.caption("FINANCIALS")
+    
+    # Currency (Open for all per user request)
     currency = st.selectbox(
         "Currency",
         ["USD ($)", "EUR (€)", "GBP (£)", "NGN (₦)", "JPY (¥)", "CAD ($)", "AUD ($)", "INR (₹)"],
@@ -706,22 +729,26 @@ elif active_tab == "PORTFOLIO":
                 avg_cost = st.number_input(f"Avg Cost ({currency_symbol})", min_value=0.0, step=1.0, key="add_cost")
             
             if st.button("ADD TO HOLDINGS", type="primary", use_container_width=True):
-                # Check if already exists
-                existing = next((item for item in st.session_state.portfolio_holdings if item['symbol'] == selected_symbol), None)
-                if existing:
-                    # Update (simplified for demo: just replacing or averaging)
-                    new_qty = existing['qty'] + qty
-                    new_cost = ((existing['qty'] * existing['cost']) + (qty * avg_cost)) / new_qty if new_qty > 0 else 0
-                    existing['qty'] = new_qty
-                    existing['cost'] = new_cost
+                # Membership Check: Capacity
+                if not st.session_state.is_pro and len(st.session_state.portfolio_holdings) >= 3:
+                    st.warning("⚠️ Free Tier Capacity Reached (3 Assets). Upgrade to Pro for unlimited institutional tracking.")
                 else:
-                    st.session_state.portfolio_holdings.append({
-                        'symbol': selected_symbol,
-                        'qty': qty,
-                        'cost': avg_cost
-                    })
-                st.success(f"Added {selected_symbol} to portfolio.")
-                st.rerun()
+                    # Check if already exists
+                    existing = next((item for item in st.session_state.portfolio_holdings if item['symbol'] == selected_symbol), None)
+                    if existing:
+                        # Update (simplified for demo: just replacing or averaging)
+                        new_qty = existing['qty'] + qty
+                        new_cost = ((existing['qty'] * existing['cost']) + (qty * avg_cost)) / new_qty if new_qty > 0 else 0
+                        existing['qty'] = new_qty
+                        existing['cost'] = new_cost
+                    else:
+                        st.session_state.portfolio_holdings.append({
+                            'symbol': selected_symbol,
+                            'qty': qty,
+                            'cost': avg_cost
+                        })
+                    st.success(f"Added {selected_symbol} to portfolio.")
+                    st.rerun()
 
     with col_actions:
         st.markdown("""
@@ -839,30 +866,49 @@ elif active_tab == "PORTFOLIO":
             # Active Rebalancing Logic
             if st.session_state.get('rebalance_request'):
                 st.markdown("#### QUANTITATIVE STRATEGY")
-                from portfolio_agent import analyze_portfolio_rebalance
                 
-                with st.spinner("Analyzing portfolio weightings..."):
-                    user_context = {'age': age, 'goal': goal}
-                    rebalance_report = analyze_portfolio_rebalance(
-                        st.session_state.portfolio_holdings,
-                        risk_tolerance,
-                        user_context
-                    )
-                    
+                if not st.session_state.is_pro:
+                    # Gated Preview UI
                     st.markdown(f"""
-                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1.5rem; border-radius: 20px; margin-top: 0.5rem; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);">
-                        <h5 style="color: #60A5FA; margin-top: 0; display:flex; align-items:center; letter-spacing:0.02em;">
-                            <span style="margin-right:10px;">📉</span> STRATEGIC REBALANCING STEPS
-                        </h5>
-                        <div style="color: #E2E8F0; font-size: 0.9rem; line-height: 1.7; height: 320px; overflow-y: auto; padding-right:10px;">
-                            {rebalance_report}
-                        </div>
+                    <div style="background: rgba(245, 158, 11, 0.05); border: 1px dashed rgba(245, 158, 11, 0.3); padding: 2rem; border-radius: 20px; text-align: center; margin-top: 0.5rem;">
+                        <div style="font-size: 2rem; margin-bottom: 1rem;">🔒</div>
+                        <h5 style="color: #F59E0B; margin-top: 0;">Institutional Audit Locked</h5>
+                        <p style="color: #94A3B8; font-size: 0.85rem; line-height: 1.5;">Specific Buy/Sell execution steps and Arcium-standard tactical rebalancing are reserved for **Institutional Pro** members.</p>
+                        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 1.5rem 0;">
+                        <p style="color: #fff; font-weight: 700; margin-bottom: 1rem;">Unlock for $49/mo</p>
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                    if st.button("DISMISS REPORT", use_container_width=True, type="secondary"):
+                    if st.button("UPGRADE NOW", type="primary", use_container_width=True, key="gate_upgrade"):
+                        st.session_state.is_pro = True
+                        st.rerun()
+                    if st.button("DISMISS", use_container_width=True, type="secondary"):
                         st.session_state.rebalance_request = False
                         st.rerun()
+                else:
+                    from portfolio_agent import analyze_portfolio_rebalance
+                    
+                    with st.spinner("Analyzing portfolio weightings..."):
+                        user_context = {'age': age, 'goal': goal}
+                        rebalance_report = analyze_portfolio_rebalance(
+                            st.session_state.portfolio_holdings,
+                            risk_tolerance,
+                            user_context
+                        )
+                        
+                        st.markdown(f"""
+                        <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1.5rem; border-radius: 20px; margin-top: 0.5rem; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);">
+                            <h5 style="color: #60A5FA; margin-top: 0; display:flex; align-items:center; letter-spacing:0.02em;">
+                                <span style="margin-right:10px;">📉</span> STRATEGIC REBALANCING STEPS
+                            </h5>
+                            <div style="color: #E2E8F0; font-size: 0.9rem; line-height: 1.7; height: 320px; overflow-y: auto; padding-right:10px;">
+                                {rebalance_report}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        if st.button("DISMISS REPORT", use_container_width=True, type="secondary"):
+                            st.session_state.rebalance_request = False
+                            st.rerun()
             else:
                 st.markdown(create_stat_card("ASSET COUNT", f"{len(st.session_state.portfolio_holdings)} ACTIVATED", 0, "📂"), unsafe_allow_html=True)
                 st.markdown("""
