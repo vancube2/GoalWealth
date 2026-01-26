@@ -254,6 +254,9 @@ with st.sidebar:
         index=0
     )
     
+    currency_symbol = currency.split("(")[1].split(")")[0]
+    currency_code = currency.split(" ")[0]
+    
     # Dynamic Currency Conversion Logic
     from live_data import get_global_exchange_rates
     rates = get_global_exchange_rates()
