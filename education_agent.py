@@ -136,20 +136,18 @@ AVAILABLE_GUIDES = {
     "Orca Whirlpools": "orca-whirlpools",
     "Jupiter Aggregator Strategy": "jupiter-aggregator",
     
-    # Crypto Concepts
     "Impermanent Loss Explained": "impermanent-loss",
     "Smart Contract Security": "security",
     "Yield Farming Strategies": "yield-farming",
     "DCA (Dollar Cost Averaging)": "dca",
     "Hardware Wallet Security": "wallets",
-    
-    # Global Finance & Wealth
     "Compound Interest Math": "compound-growth",
     "Tax-Loss Harvesting": "tax-loss-harvesting",
     "Global REITs (Real Estate)": "reits",
     "Commodity Supercycles": "commodities",
     "Index Fund Mastery": "index-funds",
-    "Dividend Growth Strategy": "dividends",
+    "Mastering Wealth Resolutions": "resolutions",
+    "Institutional Execution": "execution",
     
     # Risk & Psychology
     "Portfolio Risk Management": "risk-management",

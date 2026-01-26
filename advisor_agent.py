@@ -107,50 +107,6 @@ You can handle DeFi better than most, but still:
 3. Never invest more than you can afford to lose
 """,
     
-    "arcium_investment": """Important clarification: **Arcium is NOT an investment!**
-
-**What Arcium Actually Is:**
-Arcium is a **privacy SDK/tool** for Solana, not a token you can buy or hold.
-
-**What It Does:**
-- Provides confidential computing for Solana transactions
-- Enables private transfers between DeFi protocols
-- Developer tool for building privacy-focused dApps
-
-**There is NO "ARCIUM" token to invest in.**
-
-**For Your Investment Goals:**
-Instead of "investing in Arcium," consider:
-
-1. **Invest in Solana (SOL):**
-   - Arcium builds ON Solana
-   - Benefits from Solana ecosystem growth
-   - Current opportunity: SOL for long-term hold
-
-2. **Use Arcium-powered protocols** (when available):
-   - Private DeFi transactions
-   - Enhanced security for your investments
-
-3. **Actual Solana DeFi investments:**
-   - Jito staking: 8-9% APY (low risk)
-   - Raydium pools: 20-25% APY (medium risk)
-   - Kamino vaults: 25-35% APY (high risk)
-
-**Action Steps:**
-1. ❌ Don't search for "Arcium token"
-2. ✅ Invest in SOL and stake with Jito
-3. ✅ Use Arcium SDK when using DeFi (for privacy)
-4. ✅ Follow Arcium's development for privacy features
-
-**Your Best Move:**
-Allocate to actual Solana investments:
-- 40% SOL (hold)
-- 30% Jito staking (8-9% APY)
-- 30% Raydium or Kamino (higher yield)
-
-Website: https://arcium.io (for info, not investing)
-""",
-    
     "gold_investment": """Gold is having a moment, but let me give you the full picture for someone your age.
 
 **Why Gold Is Relevant Now (January 2026):**

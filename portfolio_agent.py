@@ -33,8 +33,7 @@ def analyze_portfolio_rebalance(holdings, target_risk, user_context):
         1. Analyze the current weighting of assets.
         2. Identify over-concentrations or gaps based on the {target_risk} risk profile.
         3. Recommend SPECIFIC STRATEGIC ADJUSTMENTS (Sell and Buy actions) to reach target weights.
-        4. CRITICAL: For every execution step, explicitly state how **Arcium's Confidential Computing** should be used to protect trade intent and prevent slippage/front-running during these rebalancing orders.
-        5. Focus on institutional efficiency and total-return alpha.
+        4. Focus on institutional efficiency and total-return alpha.
         
         Format as a professional Quantitative Audit Report in Markdown. Use Bold for Actionable Steps.
         """
@@ -68,9 +67,9 @@ Your current portfolio containing **{', '.join(symbols)}** has been analyzed aga
 - **DIGITAL ALPHA:** For a {target_risk} profile, we recommend rotating into **Solana (SOL)** and **Bitcoin (BTC)** within a 10-15% tactical band.
 - **YIELD CAPTURE:** Transition idle capital into **Jito Staking** or **Kamino** to harvest yields in the 8-12% range.
 
-### 3. Arcium Confidential Execution
+### 3. Professional Execution Protocol
 1. **Audit** portions of assets that have drifted >5% from target benchmark.
-2. **Execute** rebalancing via **Arcium** to ensure intent privacy and prevent front-running by market participants.
+2. **Execute** rebalancing via institutional-grade liquidity providers to ensure optimal price discovery.
 3. **Deploy** capital into multi-chain yield vaults once tactical weights are achieved.
 
 ---

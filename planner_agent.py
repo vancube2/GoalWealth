@@ -105,9 +105,7 @@ def create_investment_plan(user_profile):
         1. **Global Multi-Asset Allocation**: Provide a precise % split between Traditional Equities (Global/US), Commodities (Gold/Oil), Real Estate (REITs), Crypto, and Cash. Explain the macro-economic reasoning for this allocation NOW.
         2. **High-Conviction Recommendations**:
            - Equities & REITs: Specific tickers (VTI, VNQ, VT, etc.) based on market performance.
-           - Commodities: Exposure strategies (USO for Oil, GDX for Gold Miners).
            - Crypto & Solana DeFi: Precise allocation (BTC, ETH, SOL) and target specific high-yield protocols (Kamino, Jito, Raydium) to maximize alpha.
-           - Privacy: Briefly note how 'Arcium' protects transaction data integrity during global execution.
 3. **Total Wealth Optimization Strategy**: How to compound across all asset classes and manage currency/inflation risks.
         4. **Tactical Risk Management**: Professional-grade risk triggers and rebalancing bands based on current asset volatility.
         

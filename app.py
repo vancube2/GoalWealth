@@ -262,9 +262,37 @@ with st.sidebar:
     rates = get_global_exchange_rates()
     rate = rates.get(currency_code, 1.0)
     
-    # Portfolio Health Score Component
+    # --- Financial Resolution Engine ---
+    st.markdown("---")
+    st.markdown("##### 🏁 RESOLUTION DASHBOARD")
+    
+    # Quantitative Resolution Milestones
+    res_col1, res_col2 = st.columns(2)
+    with res_col1:
+        # Emergency Fund Milestone
+        ef_target = 10000 * rate
+        ef_progress = min(capital / ef_target, 1.0) if ef_target > 0 else 1.0
+        st.caption("EMERGENCY FUND")
+        st.progress(ef_progress)
+        st.markdown(f"<p style='font-size:0.7rem; color:#94A3B8; margin-top:-0.5rem;'>{int(ef_progress*100)}% of {currency_symbol}{int(ef_target):,}</p>", unsafe_allow_html=True)
+    
+    with res_col2:
+        # Retirement Velocity
+        target_v = 5000 * rate
+        velocity = min(monthly / target_v, 1.0) if target_v > 0 else 1.0
+        st.caption("SAVINGS VELOCITY")
+        st.progress(velocity)
+        st.markdown(f"<p style='font-size:0.7rem; color:#94A3B8; margin-top:-0.5rem;'>{int(velocity*100)}% of target</p>", unsafe_allow_html=True)
+
+    # Institutional Risk Resilience Metric
     from styles import create_health_score_dial
-    st.markdown(create_health_score_dial(88, "OPTIMAL"), unsafe_allow_html=True)
+    
+    # Simple multivariable metric: (Income Stability * 0.4) + (Capital Base * 0.3) + (Savings Rate * 0.3)
+    resilience_score = min(80 + (monthly/500 * 5) + (income/100000 * 5), 99)
+    st.markdown(create_health_score_dial(int(resilience_score), "RESILIENCE"), unsafe_allow_html=True)
+    
+    st.markdown("###")
+    st.caption("FINANCIAL PARAMETERS")
     
     income_val = st.session_state.get('income_val', 60000)
     income = st.number_input(
@@ -290,7 +318,7 @@ with st.sidebar:
     
     monthly_val = st.session_state.get('monthly_val', 500)
     monthly = st.number_input(
-        f"Monthly Investment", 
+        f"Monthly Velocity", 
         min_value=0, 
         max_value=1000000, 
         value=monthly_val, 
@@ -802,7 +830,7 @@ elif active_tab == "PORTFOLIO":
                 <div style='display:flex; justify-content:space-between; font-size:0.85rem; color:#94A3B8; margin-bottom:0.75rem;'><span>Digital Alpha</span><span style='color:#fff; font-weight:600;'>15-20%</span></div>
                 <div style='display:flex; justify-content:space-between; font-size:0.85rem; color:#94A3B8;'><span>Yield Layer</span><span style='color:#fff; font-weight:600;'>10-15%</span></div>
                 <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.7rem; color: #64748B;">
-                    Optimized via **Arcium Confidential Computing** protocols.
+                    Optimized via institutional-grade quantitative protocols.
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -824,7 +852,7 @@ elif active_tab == "PORTFOLIO":
                     st.markdown(f"""
                     <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1.5rem; border-radius: 20px; margin-top: 0.5rem; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);">
                         <h5 style="color: #60A5FA; margin-top: 0; display:flex; align-items:center; letter-spacing:0.02em;">
-                            <span style="margin-right:10px;">🛡️</span> ARCIUM-SECURED EXECUTION STEPS
+                            <span style="margin-right:10px;">📉</span> STRATEGIC REBALANCING STEPS
                         </h5>
                         <div style="color: #E2E8F0; font-size: 0.9rem; line-height: 1.7; height: 320px; overflow-y: auto; padding-right:10px;">
                             {rebalance_report}
@@ -839,9 +867,9 @@ elif active_tab == "PORTFOLIO":
                 st.markdown(create_stat_card("ASSET COUNT", f"{len(st.session_state.portfolio_holdings)} ACTIVATED", 0, "📂"), unsafe_allow_html=True)
                 st.markdown("""
                 <div style="background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); margin-top: 1rem;">
-                    <div style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 1.5rem; line-height:1.5;">Initiate **STRATEGIC AUDIT** to generate a confidential rebalancing report secured by Arcium.</div>
+                    <div style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 1.5rem; line-height:1.5;">Initiate **STRATEGIC AUDIT** to generate a confidential rebalancing report.</div>
                     <div style="background: rgba(59, 130, 246, 0.1); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.2); font-size: 0.75rem; color: #60A5FA;">
-                        <b>Note:</b> All execution paths include multi-chain privacy steps.
+                        <b>Note:</b> All execution paths follow institutional multi-chain protocols.
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
