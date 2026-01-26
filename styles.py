@@ -413,6 +413,44 @@ def apply_custom_styles():
         100% { transform: translateX(-50%); }
     }
     
+    /* Professional Logo Styling */
+    .asset-logo {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin-right: 12px;
+        object-fit: contain;
+        background: rgba(255,255,255,0.05);
+        padding: 2px;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .ticker-logo {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        margin-right: 8px;
+        object-fit: contain;
+    }
+    
+    .yield-logo {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        object-fit: contain;
+        background: rgba(255,255,255,0.05);
+        padding: 3px;
+    }
+    
+    .stat-logo {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-bottom: 0.5rem;
+        object-fit: contain;
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
+    }
+    
     </style>
     """, unsafe_allow_html=True)
 
@@ -503,8 +541,8 @@ def apply_tab_backgrounds():
     pass
 
 
-def create_stat_card(title, value, change=None, sub_change=None):
-    """Create a glassmorphic stat card"""
+def create_stat_card(title, value, change=None, logo_url=None):
+    """Create a glassmorphic stat card with logo support"""
     change_html = ""
     if change is not None:
         color = "#10B981" if change >= 0 else "#EF4444"
@@ -512,7 +550,12 @@ def create_stat_card(title, value, change=None, sub_change=None):
         bg_color = "rgba(16, 185, 129, 0.1)" if change >= 0 else "rgba(239, 68, 68, 0.1)"
         change_html = f"<div style='display: inline-flex; align-items: center; padding: 4px 10px; background: {bg_color}; border-radius: 20px; color: {color}; font-size: 0.8rem; font-weight: 600; border: 1px solid {color}33;'>{arrow} {abs(change):.2f}%</div>"
 
+    logo_html = ""
+    if logo_url:
+        logo_html = f'<img src="{logo_url}" class="stat-logo">'
+
     return f"""<div style="{create_glass_card()}">
+        {logo_html}
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
             <div style="color: #94A3B8; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">{title}</div>
             {change_html}
@@ -520,9 +563,9 @@ def create_stat_card(title, value, change=None, sub_change=None):
         <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; color: #fff; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: break-word;">{value}</div>
     </div>"""
 
-def create_metric_card_large(title, value, change=None):
+def create_metric_card_large(title, value, change=None, logo_url=None):
     """Same as stat card but potentially emphasized"""
-    return create_stat_card(title, value, change)
+    return create_stat_card(title, value, change, logo_url)
 
 def create_success_banner(message):
     return f"""

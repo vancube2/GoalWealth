@@ -15,6 +15,34 @@ from streamlit_mic_recorder import mic_recorder
 from voice_processor import extract_profile_from_voice, process_voice_advisor_query, transcribe_voice
 from live_data import get_live_market_data, get_defi_yields, get_portfolio_growth_projection
 
+def get_asset_logo(symbol):
+    """Returns professional logo URL for assets"""
+    symbol = symbol.upper()
+    crypto_assets = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'AVAX', 'LINK', 'DOT']
+    
+    if symbol in crypto_assets:
+        return f"https://coinicons-api.vercel.app/api/v1/{symbol.lower()}/64"
+    elif symbol == 'GOLD':
+        return "https://cdn-icons-png.flaticon.com/512/272/272530.png"
+    elif symbol == 'BONDS':
+        return "https://cdn-icons-png.flaticon.com/512/2845/2845927.png"
+    else:
+        # Stock/ETF logos via FinancialModelingPrep
+        return f"https://financialmodelingprep.com/image-stock/{symbol}.png"
+
+def get_protocol_logo(name):
+    """Returns professional logo URL for DeFi protocols"""
+    logos = {
+        'Jito Staking': 'https://logo.clearbit.com/jito.network',
+        'Raydium Pools': 'https://logo.clearbit.com/raydium.io',
+        'Kamino Vaults': 'https://logo.clearbit.com/kamino.finance',
+        'Marinade Native': 'https://logo.clearbit.com/marinade.finance',
+        'Orca Whirlpools': 'https://logo.clearbit.com/orca.so',
+        'Solend Lending': 'https://logo.clearbit.com/solend.fi',
+        'Marginfi Yield': 'https://logo.clearbit.com/marginfi.com'
+    }
+    return logos.get(name, "https://cdn-icons-png.flaticon.com/512/2489/2489756.png")
+
 # Apply professional financial dashboard styling
 apply_custom_styles()
 
@@ -202,8 +230,30 @@ with st.sidebar:
         
         if opportunities:
             for idx, opp in enumerate(opportunities[:2], 1):
+                # Map asset names to symbols for logo lookup
+                symbol_map = {
+                    'Solana (SOL)': 'SOL',
+                    'Jito Staking': 'JITO',
+                    'Raydium Liquidity Pools': 'RAY',
+                    'Kamino Finance Vaults': 'KAMINO',
+                    'Bitcoin (BTC)': 'BTC',
+                    'Portfolio Rebalance': 'BONDS'
+                }
+                asset_key = symbol_map.get(opp['asset'], 'SOL')
+                
+                # Use special logo handling for opportunities
+                if asset_key in ['JITO', 'RAY', 'KAMINO']:
+                    logo_url = get_protocol_logo(opp['asset'].replace(' Liquidity Pools', '').replace(' Finance Vaults', '').strip())
+                else:
+                    logo_url = get_asset_logo(asset_key)
+                
                 with st.expander(f"✨ {opp['type']}", expanded=True):
-                    st.markdown(f"<strong style='color:#F8FAFC'>{opp['asset']}</strong>", unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                        <img src="{logo_url}" class="ticker-logo" style="width:20px; height:20px; margin-right:8px;">
+                        <strong style='color:#F8FAFC'>{opp['asset']}</strong>
+                    </div>
+                    """, unsafe_allow_html=True)
                     st.caption(opp['reason'])
                     st.markdown(f"<div style='background:rgba(59, 130, 246, 0.2); padding:0.5rem; border-radius:6px; margin-top:0.5rem; border:1px solid rgba(59, 130, 246, 0.3); font-size:0.8rem; color:#60A5FA'>{opp['action']}</div>", unsafe_allow_html=True)
         else:
@@ -249,29 +299,17 @@ if active_tab == "DASHBOARD":
     with col1:
         st.markdown("### Market Overview")
         
-        # Expanded Asset Icons Mapping
-        ASSET_ICONS = {
-            'BTC': '₿', 'ETH': 'Ξ', 'SOL': '◎', 'BNB': '🔶', 'XRP': '✖️', 'ADA': '💠',
-            'AVAX': '🔺', 'LINK': '🔗', 'DOT': '⚪',
-            'VTI': '📊', 'GOLD': '🟡', 'BONDS': '📜',
-            'AAPL': '🍎', 'NVDA': '🟩', 'TSLA': '⚡', 'MSFT': '💻',
-            'AMZN': '📦', 'GOOGL': '🔍', 'META': '♾️', 'NFLX': '🎬',
-            'AMD': '❤️', 'INTC': '🔵', 'JPM': '🏦', 'GS': '💰',
-            'XOM': '⛽', 'CVX': '🛢️', 'BRK-B': '🏘️', 'SPY': '📈',
-            'QQQ': '💡', 'DIA': '💎'
-        }
-        
         # Consistent Live Market Ticker
         live_market = get_live_market_data()
         ticker_items = []
         for symbol, details in live_market.items():
             change_class = "change-up" if details['change_24h'] >= 0 else "change-down"
             arrow = "▲" if details['change_24h'] >= 0 else "▼"
-            icon = ASSET_ICONS.get(symbol, '💰')
+            logo_url = get_asset_logo(symbol)
             
             item_html = (
                 f'<div class="ticker-item">'
-                f'<div class="ticker-icon">{icon}</div>'
+                f'<img src="{logo_url}" class="ticker-logo">'
                 f'<span class="ticker-symbol">{symbol}</span>'
                 f'<span class="ticker-price">${details["price"]:,.2f}</span>'
                 f'<span class="ticker-change {change_class}">{arrow} {abs(details["change_24h"]):.2f}%</span>'
@@ -296,19 +334,19 @@ if active_tab == "DASHBOARD":
     
     with col1:
         btc_data = market_data['BTC']
-        st.markdown(create_stat_card("BITCOIN", f"${btc_data['price']:,.0f}", btc_data['change_24h']), unsafe_allow_html=True)
+        st.markdown(create_stat_card("BITCOIN", f"${btc_data['price']:,.0f}", btc_data['change_24h'], get_asset_logo('BTC')), unsafe_allow_html=True)
     
     with col2:
         eth_data = market_data['ETH']
-        st.markdown(create_stat_card("ETHEREUM", f"${eth_data['price']:,.0f}", eth_data['change_24h']), unsafe_allow_html=True)
+        st.markdown(create_stat_card("ETHEREUM", f"${eth_data['price']:,.0f}", eth_data['change_24h'], get_asset_logo('ETH')), unsafe_allow_html=True)
     
     with col3:
         sol_data = market_data['SOL']
-        st.markdown(create_stat_card("SOLANA", f"${sol_data['price']:,.2f}", sol_data['change_24h']), unsafe_allow_html=True)
+        st.markdown(create_stat_card("SOLANA", f"${sol_data['price']:,.2f}", sol_data['change_24h'], get_asset_logo('SOL')), unsafe_allow_html=True)
     
     with col4:
         vti_data = market_data['VTI']
-        st.markdown(create_stat_card("S&P 500 ETF", f"${vti_data['price']:,.2f}", vti_data['change_24h']), unsafe_allow_html=True)
+        st.markdown(create_stat_card("S&P 500 ETF", f"${vti_data['price']:,.2f}", vti_data['change_24h'], get_asset_logo('VTI')), unsafe_allow_html=True)
     
     st.markdown("###")
     
@@ -348,20 +386,13 @@ if active_tab == "DASHBOARD":
         
         defi_results = get_defi_yields()
         
-        # DeFi Icons Mapping
-        DEFI_ICONS = {
-            'Jito Staking': '🥩', 'Raydium Pools': '🔆', 'Kamino Vaults': '⚡',
-            'Marinade Native': '💧', 'Orca Whirlpools': '🐋', 'Solend Lending': '🏦',
-            'Marginfi Yield': '📉'
-        }
-        
         yield_items = []
         for protocol, info in defi_results.items():
-            icon = DEFI_ICONS.get(protocol, '💰')
+            logo_url = get_protocol_logo(protocol)
             item_html = (
                 f'<div class="yield-card">'
                 f'<div class="yield-card-left">'
-                f'<div class="yield-icon">{icon}</div>'
+                f'<img src="{logo_url}" class="yield-logo" style="margin-right:12px;">'
                 f'<div><div class="yield-name">{protocol}</div><div class="yield-tvl">TVL: {info["tvl"]}</div></div>'
                 f'</div>'
                 f'<div class="yield-apy">{info["apy"]}%</div>'
