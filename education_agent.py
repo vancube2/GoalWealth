@@ -89,6 +89,9 @@ def generate_guide(topic, user_level="beginner"):
             try:
                 response = generate_with_retry(model_name, prompt)
                 if response:
+                    res_text = response.text
+                    if "capacity reached" in res_text.lower() or "quota exceeded" in res_text.lower():
+                        continue
                     break
             except Exception as e:
                  last_error = e

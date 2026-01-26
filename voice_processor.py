@@ -45,8 +45,10 @@ def get_gemini_response(prompt, audio_data=None):
         response = model.generate_content(content)
         return response.text
     except Exception as e:
-        error_msg = str(e)
+        error_msg = str(e).lower()
         print(f"Gemini Error: {error_msg}")
+        if "capacity" in error_msg or "quota" in error_msg:
+            return "ERROR: API capacity reached. Please use manual input while we rebalance."
         return f"ERROR: {error_msg}"
 
 def transcribe_voice(audio_bytes):

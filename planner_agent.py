@@ -124,7 +124,8 @@ def create_investment_plan(user_profile):
                     return model.generate_content(prompt)
                 except Exception as e:
                     # Retry on Rate Limit (429) or Server Error (500+)
-                    if ("429" in str(e) or "403" in str(e) or "500" in str(e)) and attempt < max_retries - 1:
+                    err_str = str(e).lower()
+                    if ("429" in err_str or "403" in err_str or "500" in err_str or "capacity" in err_str or "quota" in err_str) and attempt < max_retries - 1:
                         wait_time = 5 * (attempt + 1)
                         print(f"[{model_name}] Rate limit/Error hit. Retrying in {wait_time}s...")
                         time.sleep(wait_time)
@@ -150,6 +151,10 @@ def create_investment_plan(user_profile):
                 print(f"Attemping to use model: {model_name}...")
                 response = generate_with_retry(model_name, prompt)
                 if response:
+                    res_text = response.text
+                    if "capacity reached" in res_text.lower() or "quota exceeded" in res_text.lower():
+                        errors.append(f"{model_name}: capacity response")
+                        continue
                     print(f"Success with {model_name}!")
                     break
             except Exception as e:
