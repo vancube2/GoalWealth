@@ -485,8 +485,6 @@ if active_tab == "DASHBOARD":
         fig.update_layout(layout)
         
         st.plotly_chart(fig, use_container_width=True)
-        
-        st.plotly_chart(fig, use_container_width=True)
     
     with col2:
         st.markdown("#### Live Yield Desk")
