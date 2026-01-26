@@ -33,7 +33,7 @@ def get_gemini_response(prompt, audio_data=None):
     try:
         genai.configure(api_key=gemini_key)
         # Using a more stable model name
-        model = genai.GenerativeModel("gemini-1.5-flash-latest")
+        model = genai.GenerativeModel("gemini-1.5-flash")
         
         content = [prompt]
         if audio_data:

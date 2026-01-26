@@ -133,7 +133,8 @@ def create_investment_plan(user_profile):
 
         # Model Priority List (Validated for environment)
         models_to_try = [
-            'models/gemini-1.5-flash-latest', 
+            'models/gemini-1.5-flash', 
+            'models/gemini-1.5-pro',
             'models/gemini-2.0-flash-exp'
         ]
         
