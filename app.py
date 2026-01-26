@@ -486,24 +486,7 @@ if active_tab == "DASHBOARD":
         
         st.plotly_chart(fig, use_container_width=True)
         
-        st.markdown("#### Global Smart Vaults")
-        from live_data import get_strategy_vaults
-        from styles import create_vault_card
-        
-        vaults = get_strategy_vaults()
-        v_cols = st.columns(3)
-        for i, vault in enumerate(vaults):
-            with v_cols[i]:
-                logo_uri = get_asset_logo(vault['logo'])
-                st.markdown(create_vault_card(
-                    vault['name'], 
-                    vault['description'], 
-                    vault['apy'], 
-                    vault['risk'], 
-                    vault['tvl'],
-                    vault['status'],
-                    logo_uri
-                ), unsafe_allow_html=True)
+        st.plotly_chart(fig, use_container_width=True)
     
     with col2:
         st.markdown("#### Live Yield Desk")
@@ -535,6 +518,27 @@ if active_tab == "DASHBOARD":
         )
         st.markdown(full_defi_html, unsafe_allow_html=True)
     
+    st.markdown("---")
+    
+    st.markdown("### Global Smart Vaults")
+    from live_data import get_strategy_vaults
+    from styles import create_vault_card
+    
+    vaults = get_strategy_vaults()
+    v_cols = st.columns(3)
+    for i, vault in enumerate(vaults):
+        with v_cols[i]:
+            logo_uri = get_asset_logo(vault['logo'])
+            st.markdown(create_vault_card(
+                vault['name'], 
+                vault['description'], 
+                vault['apy'], 
+                vault['risk'], 
+                vault['tvl'],
+                vault['status'],
+                logo_uri
+            ), unsafe_allow_html=True)
+            
     st.markdown("---")
     
     # Projections

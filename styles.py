@@ -618,7 +618,7 @@ def create_health_score_dial(score, level="Optimal"):
     """
 
 def create_vault_card(name, description, apy, risk, tvl, status, logo_url=None):
-    """Create a premium institutional strategy vault card with perfect alignment"""
+    """Create a premium institutional strategy vault card with rigid horizontal alignment"""
     risk_color = "#10B981" if risk == "Low" else "#F59E0B" if risk == "Medium" else "#EF4444"
     status_color = "#10B981" if status.lower() in ["active", "live"] else "#3B82F6"
     logo_html = ""
@@ -627,8 +627,8 @@ def create_vault_card(name, description, apy, risk, tvl, status, logo_url=None):
             logo_html = f'<div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; margin-right: 15px; border: 1px solid rgba(255,255,255,0.1); width: 44px; height: 44px; display:flex; align-items:center; justify-content:center;"><img src="{logo_url}" style="width:24px; height:24px; object-fit:contain;"></div>'
         else:
             logo_html = f'<div style="font-size:1.8rem; margin-right: 15px; background: rgba(255,255,255,0.03); width: 44px; height: 44px; display:flex; align-items:center; justify-content:center; border-radius:12px;">{logo_url}</div>'
-    return f"""<div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 1.5rem; transition: all 0.3s ease; height: 420px; display: flex; flex-direction: column; backdrop-filter: blur(20px); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);">
-<div style="display: flex; align-items: center; margin-bottom: 1.25rem;">
+    return f"""<div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 1.5rem; transition: all 0.3s ease; height: 450px; display: flex; flex-direction: column; backdrop-filter: blur(20px); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);">
+<div style="display: flex; align-items: center; margin-bottom: 1.5rem; height: 50px;">
 {logo_html}
 <div style="flex-grow: 1;">
 <div style="font-weight: 800; color: white; font-size: 1.1rem; letter-spacing: -0.01em; line-height: 1.2;">{name}</div>
@@ -638,16 +638,16 @@ def create_vault_card(name, description, apy, risk, tvl, status, logo_url=None):
 </div>
 </div>
 </div>
-<div style="flex-grow: 1;">
+<div style="height: 100px; overflow: hidden; margin-bottom: 1rem;">
 <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.6; font-weight: 400; margin: 0;">{description}</p>
 </div>
-<div style="background: rgba(255,255,255,0.02); border-radius: 12px; padding: 1.25rem; border: 1px solid rgba(255,255,255,0.03); margin-top: 1.5rem;">
+<div style="margin-top: auto; background: rgba(255,255,255,0.02); border-radius: 12px; padding: 1.25rem; border: 1px solid rgba(255,255,255,0.03);">
 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.25rem;">
-<div>
+<div style="min-width: 80px;">
 <div style="font-size: 0.6rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 4px;">Net Yield</div>
 <div style="font-size: 1.5rem; font-weight: 800; color: #10B981; font-family: 'JetBrains Mono'; line-height: 1;">{apy}%</div>
 </div>
-<div style="text-align: right;">
+<div style="text-align: right; min-width: 80px;">
 <div style="font-size: 0.6rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 4px;">Risk Engine</div>
 <div style="display: inline-block; padding: 4px 10px; border-radius: 8px; background: {risk_color}15; border: 1px solid {risk_color}33;">
 <span style="font-size: 0.75rem; font-weight: 800; color: {risk_color};">{risk.upper()}</span>
