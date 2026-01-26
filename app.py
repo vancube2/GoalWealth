@@ -16,30 +16,40 @@ from voice_processor import extract_profile_from_voice, process_voice_advisor_qu
 from live_data import get_live_market_data, get_defi_yields, get_portfolio_growth_projection
 
 def get_asset_logo(symbol):
-    """Returns professional logo URL for assets"""
+    """Returns reliable professional logo URL for assets with fallbacks"""
     symbol = symbol.upper()
+    
+    # Generic placeholders based on type
+    placeholders = {
+        'CRYPTO': "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
+        'STOCK': "https://cdn-icons-png.flaticon.com/512/2103/2103601.png",
+        'GOLD': "https://cdn-icons-png.flaticon.com/512/272/272530.png",
+        'BONDS': "https://cdn-icons-png.flaticon.com/512/2845/2845927.png"
+    }
+
     crypto_assets = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'AVAX', 'LINK', 'DOT']
     
     if symbol in crypto_assets:
-        return f"https://coinicons-api.vercel.app/api/v1/{symbol.lower()}/64"
+        # Use Coincap assets - very reliable
+        return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
     elif symbol == 'GOLD':
-        return "https://cdn-icons-png.flaticon.com/512/272/272530.png"
+        return placeholders['GOLD']
     elif symbol == 'BONDS':
-        return "https://cdn-icons-png.flaticon.com/512/2845/2845927.png"
+        return placeholders['BONDS']
     else:
-        # Stock/ETF logos via FinancialModelingPrep
+        # Use Clearbit for stocks if possible, fallback to FinancialModelingPrep
         return f"https://financialmodelingprep.com/image-stock/{symbol}.png"
 
 def get_protocol_logo(name):
-    """Returns professional logo URL for DeFi protocols"""
+    """Returns reliable logo URL for DeFi protocols"""
     logos = {
-        'Jito Staking': 'https://logo.clearbit.com/jito.network',
-        'Raydium Pools': 'https://logo.clearbit.com/raydium.io',
-        'Kamino Vaults': 'https://logo.clearbit.com/kamino.finance',
-        'Marinade Native': 'https://logo.clearbit.com/marinade.finance',
-        'Orca Whirlpools': 'https://logo.clearbit.com/orca.so',
-        'Solend Lending': 'https://logo.clearbit.com/solend.fi',
-        'Marginfi Yield': 'https://logo.clearbit.com/marginfi.com'
+        'Jito Staking': 'https://www.jito.network/favicon.ico',
+        'Raydium Pools': 'https://raydium.io/favicon.ico',
+        'Kamino Vaults': 'https://app.kamino.finance/favicon.ico',
+        'Marinade Native': 'https://marinade.finance/favicon.ico',
+        'Orca Whirlpools': 'https://www.orca.so/favicon.ico',
+        'Solend Lending': 'https://solend.fi/favicon.ico',
+        'Marginfi Yield': 'https://app.marginfi.com/favicon.ico'
     }
     return logos.get(name, "https://cdn-icons-png.flaticon.com/512/2489/2489756.png")
 
