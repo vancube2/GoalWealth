@@ -35,16 +35,15 @@ def get_asset_logo(symbol):
     elif symbol == 'BONDS':
         return placeholders['BONDS']
     
-    # Priority 1: High reliability Crypto CDN
-    if symbol in crypto_tickers:
-        # Coincap uses specific lowercase ID system, but often handles ticker directly
-        return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
-    
-    # Priority 2: High reliability Stock CDN
+    # Priority 1: High reliability Stock CDN (Explicitly check stocks first to avoid ETF routing errors)
     if symbol in stock_tickers:
         return f"https://financialmodelingprep.com/image-stock/{symbol}.png"
     
-    # Catch-all based on length (heuristics)
+    # Priority 2: High reliability Crypto CDN
+    if symbol in crypto_tickers:
+        return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
+    
+    # Priority 3: Common Cryptos (Generic length heuristic as last resort)
     if len(symbol) <= 5:
         return f"https://assets.coincap.io/assets/icons/{symbol.lower()}@2x.png"
     
@@ -277,7 +276,7 @@ with st.sidebar:
                 with st.expander(f"✨ {opp['type']}", expanded=True):
                     st.markdown(f"""
                     <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
-                        <img src="{logo_url}" class="ticker-logo" style="width:20px; height:20px; margin-right:8px;" onerror="this.onerror=null;this.src=\'{fallback_img}\'">'
+                        <img src="{logo_url}" class="ticker-logo" style="width:20px; height:20px; margin-right:8px;" onerror="this.onerror=null;this.src=\'{fallback_img}\';">
                         <strong style='color:#F8FAFC'>{opp['asset']}</strong>
                     </div>
                     """, unsafe_allow_html=True)
