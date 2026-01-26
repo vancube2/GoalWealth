@@ -499,6 +499,8 @@ if active_tab == "DASHBOARD":
                     vault['description'], 
                     vault['apy'], 
                     vault['risk'], 
+                    vault['tvl'],
+                    vault['status'],
                     vault['logo']
                 ), unsafe_allow_html=True)
     

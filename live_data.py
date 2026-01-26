@@ -231,6 +231,8 @@ def get_strategy_vaults():
             'description': 'Automated delta-neutral strategy using JitoSOL and Kamino lending to harvest premium yields with low volatility.',
             'apy': 12.4,
             'risk': 'Low',
+            'tvl': '$14.2M',
+            'status': 'Active',
             'logo': '◎'
         },
         {
@@ -238,6 +240,8 @@ def get_strategy_vaults():
             'description': 'A balanced mix of S&P 500, Gold, and Bitcoin. Automatically rebalanced monthly to preserve global purchasing power.',
             'apy': 18.5,
             'risk': 'Medium',
+            'tvl': '$28.5M',
+            'status': 'Active',
             'logo': '🌍'
         },
         {
@@ -245,6 +249,8 @@ def get_strategy_vaults():
             'description': 'High-exposure vault utilizing Raydium liquidity pairs and Orca Whirlpools for maximum capital efficiency.',
             'apy': 42.1,
             'risk': 'High',
+            'tvl': '$6.8M',
+            'status': 'Live',
             'logo': '🚀'
         }
     ]

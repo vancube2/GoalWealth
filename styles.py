@@ -617,34 +617,62 @@ def create_health_score_dial(score, level="Optimal"):
     </div>
     """
 
-def create_vault_card(name, description, apy, risk, logo_url=None):
-    """Create a Strum-style strategy vault card"""
+def create_vault_card(name, description, apy, risk, tvl, status, logo_url=None):
+    """Create a premium elite strategy vault card"""
     risk_color = "#10B981" if risk == "Low" else "#F59E0B" if risk == "Medium" else "#EF4444"
+    status_color = "#10B981" if status.lower() in ["active", "live"] else "#3B82F6"
     
     logo_html = ""
     if logo_url:
         if isinstance(logo_url, str) and logo_url.startswith('data:image'):
-            logo_html = f'<img src="{logo_url}" style="width:24px; height:24px; border-radius:4px; margin-right:12px;">'
+            logo_html = f'<div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; margin-right: 15px; border: 1px solid rgba(255,255,255,0.1);"><img src="{logo_url}" style="width:28px; height:28px; object-fit:contain;"></div>'
         else:
-            logo_html = f'<div style="font-size:1.2rem; margin-right:12px;">{logo_url}</div>'
+            logo_html = f'<div style="font-size:1.8rem; margin-right: 15px; background: rgba(255,255,255,0.03); width: 44px; height: 44px; display:flex; align-items:center; justify-content:center; border-radius:12px;">{logo_url}</div>'
 
     return f"""
-    <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem; transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+    <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%); 
+                border: 1px solid rgba(255,255,255,0.08); 
+                border-radius: 24px; 
+                padding: 1.75rem; 
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+                height: 100%; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-between;
+                backdrop-filter: blur(20px);
+                box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);">
         <div>
-            <div style="display: flex; align-items: center; margin-bottom: 1rem;">
-                {logo_html}
-                <div style="font-weight: 700; color: white; font-size: 1.1rem;">{name}</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: center;">
+                    {logo_html}
+                    <div>
+                        <div style="font-weight: 800; color: white; font-size: 1.2rem; letter-spacing: -0.01em;">{name}</div>
+                        <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                            <span style="width: 6px; height: 6px; background: {status_color}; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px {status_color};"></span>
+                            <span style="font-size: 0.7rem; color: {status_color}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">{status}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 1.5rem; line-height: 1.5;">{description}</p>
+            <p style="font-size: 0.9rem; color: #94A3B8; margin-bottom: 2rem; line-height: 1.6; font-weight: 450;">{description}</p>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <div>
-                <div style="font-size: 0.7rem; color: #64748B; text-transform: uppercase;">Est. APY</div>
-                <div style="font-size: 1.5rem; font-weight: 800; color: #10B981; font-family: 'JetBrains Mono';">{apy}%</div>
+        
+        <div style="background: rgba(255,255,255,0.02); border-radius: 16px; padding: 1.25rem; border: 1px solid rgba(255,255,255,0.03);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <div style="font-size: 0.65rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 4px;">Net Yield</div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: #10B981; font-family: 'JetBrains Mono';">{apy}%</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.65rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 4px;">Risk Engine</div>
+                    <div style="display: inline-block; padding: 2px 10px; border-radius: 12px; background: {risk_color}15; border: 1px solid {risk_color}33;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: {risk_color};">{risk}</span>
+                    </div>
+                </div>
             </div>
-            <div style="text-align: right;">
-                <div style="font-size: 0.7rem; color: #64748B; text-transform: uppercase;">Risk Level</div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: {risk_color};">{risk}</div>
+            <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.75rem; color: #94A3B8;">Asset Capacity (TVL)</span>
+                <span style="font-size: 0.85rem; color: #F8FAFC; font-weight: 600; font-family: 'JetBrains Mono';">{tvl}</span>
             </div>
         </div>
     </div>
