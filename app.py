@@ -39,7 +39,7 @@ def get_asset_logo(symbol):
         'USDC': 'usdc.png', 'USDT': 'usdt.png', 'BNB': 'bnb.png',
         'JUP': 'jup.png', 'RAY': 'ray.png', 'JITO': 'jito.png',
         'XRP': 'xrp.png', 'ADA': 'ada.png', 'AVAX': 'avax.png',
-        'LINK': 'link.png', 'DOT': 'dot.png',
+        'LINK': 'link.png', 'DOT': 'dot.png', 'GOLD': 'gold.png',
         'VTI': 'vti.png', 'SPY': 'spy.png', 'QQQ': 'qqq.png',
         'AAPL': 'aapl.png', 'NVDA': 'nvda.png', 'TSLA': 'tsla.png',
         'MSFT': 'msft.png', 'AMZN': 'amzn.png', 'GOOGL': 'googl.png',
@@ -47,7 +47,8 @@ def get_asset_logo(symbol):
         'INTC': 'intc.png', 'JPM': 'jpm.png', 'GS': 'gs.png',
         'XOM': 'xom.png', 'CVX': 'cvx.png', 'DIA': 'dia.png',
         'VNQ': 'vnq.png', 'USO': 'uso.png', 'GDX': 'gdx.png',
-        'VT': 'vt.png', 'TLT': 'tlt.png', 'BONDS': 'tlt.png'
+        'VT': 'vt.png', 'TLT': 'tlt.png', 'BONDS': 'tlt.png',
+        'BRK-B': 'brk-b.png'
     }
     
     filename = logo_map.get(symbol)
@@ -70,8 +71,11 @@ def get_protocol_logo(name):
     protocol_map = {
         'Jito Staking': 'jito.png',
         'Raydium Pools': 'ray.png',
-        'Kamino Vaults': 'kamino.png', # Placeholder if kamino not in download
-        'Orca Whirlpools': 'orca.png'
+        'Kamino Vaults': 'kamino.png',
+        'Orca Whirlpools': 'orca.png',
+        'Marinade Native': 'marinade.png',
+        'Solend Lending': 'solend.png',
+        'Marginfi Yield': 'marginfi.png'
     }
     
     filename = protocol_map.get(name)
@@ -282,20 +286,24 @@ with st.sidebar:
         
         if opportunities:
             for idx, opp in enumerate(opportunities[:2], 1):
-                # Map asset names to symbols for logo lookup
+                # Map asset names to symbols/keys for logo lookup
                 symbol_map = {
                     'Solana (SOL)': 'SOL',
-                    'Jito Staking': 'JITO',
-                    'Raydium Liquidity Pools': 'RAY',
-                    'Kamino Finance Vaults': 'KAMINO',
+                    'Jito Staking': 'Jito Staking',
+                    'Raydium Liquidity Pools': 'Raydium Pools',
+                    'Kamino Finance Vaults': 'Kamino Vaults',
                     'Bitcoin (BTC)': 'BTC',
                     'Portfolio Rebalance': 'BONDS'
                 }
                 asset_key = symbol_map.get(opp['asset'], 'SOL')
                 
-                # Use special logo handling for opportunities
-                if asset_key in ['JITO', 'RAY', 'KAMINO']:
-                    logo_url = get_protocol_logo(opp['asset'].replace(' Liquidity Pools', '').replace(' Finance Vaults', '').strip())
+                # Use protocol logo helper for known protocols
+                if any(p in opp['asset'] for p in ['Jito', 'Raydium', 'Kamino', 'Orca', 'Marinade', 'Solend']):
+                    clean_name = opp['asset'].replace(' Liquidity Pools', '').replace(' Finance Vaults', '').replace(' Staking', '').replace(' (SOL)', '').strip()
+                    # Try both variants
+                    logo_url = get_protocol_logo(opp['asset']) or get_protocol_logo(clean_name)
+                    if not logo_url.startswith('data:'): # Check if it returned emoji
+                        logo_url = get_protocol_logo(clean_name + " Pools") or logo_url
                 else:
                     logo_url = get_asset_logo(asset_key)
                 
