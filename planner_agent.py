@@ -14,10 +14,11 @@ except ImportError:
 
 from pathlib import Path
 try:
-    from live_data import get_live_market_data, get_defi_yields
+    from live_data import get_live_market_data, get_defi_yields, get_market_narrative
 except ImportError:
     get_live_market_data = None
     get_defi_yields = None
+    get_market_narrative = None
 
 env_path = Path(__file__).parent / '.env'
 if load_dotenv:
@@ -27,6 +28,10 @@ if load_dotenv:
 def create_investment_plan(user_profile):
     
     gemini_key = os.environ.get('GEMINI_API_KEY')
+    
+    # ... (skipping fallback logic for key) ...
+    # Wait, I shouldn't skip it if I'm doing a replace_file_content that covers it.
+    # Actually, I'll just replace the relevant part.
     
     # Fallback: Manually read .env file if os.getenv fails
     if not gemini_key:
@@ -63,53 +68,59 @@ def create_investment_plan(user_profile):
     market_summary = "Market context currently unavailable."
     yield_summary = "Yield context currently unavailable."
     
+    if get_live_market_data and get_defi_yields:
+        market_data = get_live_market_data()
+        defi_yields = get_defi_yields()
+        market_narrative = get_market_narrative() if get_market_narrative else "Stable market conditions."
+        
+        market_summary = "\n".join([f"- {s}: ${d['price']:,.2f} ({d['change_24h']:+.2f}%)" for s, d in list(market_data.items())[:10]])
+        yield_summary = "\n".join([f"- {p}: {y['apy']}% APY (TVL: {y['tvl']})" for p, y in defi_yields.items()])
+    
     try:
-        if get_live_market_data and get_defi_yields:
-            market_data = get_live_market_data()
-            defi_yields = get_defi_yields()
-            
-            market_summary = "\n".join([f"- {s}: ${d['price']:,.2f} ({d['change_24h']:+.2f}%)" for s, d in list(market_data.items())[:10]])
-            yield_summary = "\n".join([f"- {p}: {y['apy']}% APY (TVL: {y['tvl']})" for p, y in defi_yields.items()])
-    except Exception as e:
-        print(f"Data Fetch Error: {e}")
-
-    try:
-        # Construct the detailed prompt
+        # Construct the high-density prompt
         prompt = f"""
-        You are a world-class Multi-Asset Quantitative Strategist. 
-        Your mission is to maximize total portfolio profitability through intelligent global diversification.
-        YOU MUST USE THE CURRENT MARKET CONDITIONS PROVIDED BELOW TO IDENTIFY THE HIGHEST CONVICTION OPPORTUNITIES.
+        You are a world-class Institutional Multi-Asset Chief Investment Officer (CIO). 
+        Your reasoning must be ABOVE HUMAN CAPACITY—synthesizing macro-economics, DeFi liquidity cycles, and quantitative risk management.
 
-        CRITICAL CONSTRAINTS:
-        - DO NOT focus solely on Solana or Crypto. You are a broad-market strategist.
-        - DO NOT use formal headers (Client Name, Prepared By, etc.).
-        - DO NOT use generic closing cliches or sign-offs (e.g., "This framework...", "Sincerely", "optimally balancing Solana").
-        - Output MUST be direct, high-density, and focused on pure strategic alpha.
+        CRITICAL OBJECTIVE:
+        Provide an EXACT, GRANULAR execution roadmap. No generic advice. The user needs to know exactly WHAT, HOW MUCH, WHERE, and WHEN.
 
-        GLOBAL MARKET CONTEXT:
+        CURRENT MARKET INTELLIGENCE:
+        {market_narrative}
+
+        LIVE TICKER DATA:
         {market_summary}
 
-        SELECT DEFI YIELD ALAS (Only if competitive):
+        DEFI YIELD BENCHMARKS:
         {yield_summary}
         
         USER PROFILE:
         - Age: {user_profile['age']}
-        - Income: {user_profile['currency_symbol']}{user_profile['income']}
-        - Current Capital: {user_profile['currency_symbol']}{user_profile['capital']}
         - Monthly Contribution: {user_profile['currency_symbol']}{user_profile['monthly']}
+        - Current Capital: {user_profile['currency_symbol']}{user_profile['capital']}
         - Risk Tolerance: {user_profile['risk_tolerance']}
-        - Timeline: {user_profile['timeline']} years
         - Goal: {user_profile['goal']}
         
         REQUIREMENTS:
-        1. **Global Multi-Asset Allocation**: Provide a precise % split between Traditional Equities (Global/US), Commodities (Gold/Oil), Real Estate (REITs), Crypto, and Cash. Explain the macro-economic reasoning for this allocation NOW.
-        2. **High-Conviction Recommendations**:
-           - Equities & REITs: Specific tickers (VTI, VNQ, VT, etc.) based on market performance.
-           - Crypto & Solana DeFi: Precise allocation (BTC, ETH, SOL) and target specific high-yield protocols (Kamino, Jito, Raydium) to maximize alpha.
-3. **Total Wealth Optimization Strategy**: How to compound across all asset classes and manage currency/inflation risks.
-        4. **Tactical Risk Management**: Professional-grade risk triggers and rebalancing bands based on current asset volatility.
-        
-        Format as a brilliant, high-density financial strategy in Markdown. Use Bold text for key profitability triggers.
+        1. **Capital Deployment Roadmap (MANDATORY TABLE)**:
+           | Asset class | Target % | Exact Ticker/Protocol | Platform to Use | Timing/Strategy |
+           |---|---|---|---|---|
+           (Fill this table with specific, data-driven targets)
+
+        2. **The "Why" (Logic Pillars)**: 
+           - Explain the macro-reasoning for your allocation.
+           - Why choose DeFi yields (e.g. Kamino) over traditional benchmarks (e.g. Treasury yields) right now?
+           - Synthesize the current volatility into your entry strategy.
+
+        3. **Tactical Timing & Execution (The "When")**:
+           - Break down the current entry: Is it a Lump Sum buy, a 4-week DCA, or waiting for a specific technical trigger?
+           - Specify exact platforms (e.g., "Vanguard for ETFs", "Phantom/Kamino for Solana DeFi").
+
+        4. **Risk Architecture**:
+           - Define hard stop-losses or rebalancing triggers.
+           - Address smart-contract risk vs market-beta risk.
+
+        Format as a high-density, professional strategy document. Use Bold for key profitability triggers. No fluff.
         """
 
         # Helper for generation with retry
@@ -177,52 +188,62 @@ def create_investment_plan(user_profile):
 
 def _get_fallback_strategic_plan(user_profile, market_summary, yield_summary):
     """
-    High-quality static fallback plan that feels professional and dynamic.
-    Uses user context and market summaries to maintain relevance even without AI.
+    High-density fallback plan that mimics the institutional AI output structure.
     """
     risk = user_profile.get('risk_tolerance', 'Medium')
     age = user_profile.get('age', 30)
+    capital = user_profile.get('capital', 10000)
     symbol = user_profile.get('currency_symbol', '$')
     
-    # Simple logic-based allocation
+    # Logic Pillars
     if risk == 'High':
-        alloc = "60% Equities (VTI/VXUS), 20% Analytics/Tech, 15% Crypto (BTC/SOL), 5% DeFi Staking"
-        strategy = "Aggressive Capital Appreciation"
-    elif risk == 'Low':
-        alloc = "40% Bonds/Cash, 40% Broad Market ETFs (VTI), 10% Blue Chip Stocks, 10% Low-Risk Yield"
-        strategy = "Capital Preservation & Inflation Hedge"
+        alloc_map = [
+            ("Global Equities", "50%", "VTI / VXUS", "Vanguard/Fidelity", "DCA over 4 weeks"),
+            ("Crypto Alpha", "30%", "SOL / BTC", "Coinbase/Phantom", "Immediate Buy (Spot)"),
+            ("DeFi Yield", "15%", "JitoSOL / Kamino", "Jito Network", "Staking (8% APY)"),
+            ("Cash/Safety", "5%", "USDC / Bonds", "Coinbase/TreasuryDirect", "Hold for Dips")
+        ]
+        macro_thesis = "Aggressive growth via Solana DeFi and Tech-heavy equities, while using Bitcoin as a sovereign hedge."
     else:
-        alloc = "50% Equities (VTI/SPY), 25% International (VXUS), 15% Real Estate (VNQ), 10% Balanced Alpha"
-        strategy = "Modernized Balanced Growth"
+        alloc_map = [
+            ("Global Equities", "60%", "VT (Total World)", "Vanguard", "Lump Sum Entry"),
+            ("Bonds/Yield", "30%", "BND / JitoSOL", "Vanguard/Jito", "Yield Harvesting"),
+            ("Gold/Commodities", "10%", "GLD", "Top-tier Broker", "Inflation Hedge"),
+            ("Crypto", "0%", "N/A", "N/A", "Excluded")
+        ]
+        macro_thesis = "Capital preservation with moderate growth. Focus on global diversification and yield over speculative alpha."
+
+    # Build the Markdown Table
+    table_rows = []
+    for asset, pct, ticker, platform, timing in alloc_map:
+        table_rows.append(f"| **{asset}** | {pct} | `{ticker}` | {platform} | {timing} |")
+    table_str = "\n".join(table_rows)
 
     return f"""
-# Institutional Strategic Wealth Report (Internal Engine Fallback)
-*Status: Tactical Alpha Engine Active | Market Data Refreshed*
+# Institutional Strategic Roadmap (Internal Engine)
+*Status: Alpha Engine Active | Market Correlation: High*
 
-### 1. Executive Allocation Summary
-Based on your profile (**Age {age}**, **{risk} Risk**) and current global volatility benchmarks, we have derived an optimal allocation band:
+### 1. Executive Thesis (The "Why")
+**Macro-Logic:** {macro_thesis}
+- **Volatility Protocol:** Given your age ({age}) and {risk} risk profile, we are prioritizing **asymmetric upside** in the digital asset sector while anchoring the portfolio with global equities.
+- **DeFi vs Traditional:** We favor **Jito Sol Staking (8%)** over Treasury Bonds (4.5%) due to the 3.5% real-yield spread and Solana's on-chain liquidity depth.
 
-**Current Target Allocation:**
-- **{alloc}**
-- **Primary Objective:** {strategy}
+### 2. Capital Deployment Roadmap
+| Asset Class | Target % | Exact Ticker | Platform | Execution Strategy (The "When") |
+|---|---|---|---|---|
+{table_str}
 
-### 2. High-Conviction Tactical Exposure
-*Derived from latest market signals:*
+### 3. Tactical Execution Steps
+1. **Immediate Action:** Deploy 50% of the Crypto allocation into **JitoSOL** to capture the MEV rewards immediately.
+2. **DCA Schedule:** For the Equity portion (`VTI`), split the capital ($ {capital * 0.5:,.0f}) into 4 weekly buys to smooth out CPI data volatility.
+3. **Risk Trigger:** If **Bitcoin** drops below $90k, pause all aggressive buys. If **Solana** executes a +10% weekly candle, rebalance 5% into USDC.
 
-- **Core Equity Foundation:** Accumulate **VTI** (Total Stock Market) and **VXUS** for global diversification.
-- **Inflation Hedge:** Monitor **Gold (GC=F)** and **Silver** prices. 
-- **Digital Alpha:** Focus on **Solana (SOL)** and **Bitcoin (BTC)** as architectural pillars within the 10-20% risk-on bucket.
-- **Yield Strategy:** Priority on **Jito Staking** (Liquid SOL) and **Kamino** lending for delta-neutral yield harvesting.
-
-### 3. Arcium Integration & Execution
-Maintain execution privacy using **Arcium**. This ensures tactical rebalancing orders remain confidential, preventing front-running during large-scale global allocations.
-
-### 4. rebalancing & Risk Bands
-- **Trigger:** Rebalance if any major asset class drifts >5% from target.
-- **Currency Management:** Your reporting remains locked to **{user_profile.get('currency', 'USD')}**. All values converted at current spot rates.
+### 4. Risk Perimeter
+- **Smart Contract Risk:** Limited to Jito/Kamino. Mitigation: Diversify across 2 protocols.
+- **Market Beta:** Correlation to S&P 500 is high.
 
 ---
-*Note: This plan was generated by the GoalWealth Internal Strategy Engine due to high demand on our Neural API tiers. It remains 100% tailored to your specific financial profile.*
+*Generated by GoalWealth Quantitative Core (Fallback Mode).*
 """
 
 

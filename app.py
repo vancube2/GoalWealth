@@ -421,8 +421,9 @@ if 'active_tab' not in st.session_state:
 # Apply the dynamic background based on the active tab
 st.markdown(get_section_background(st.session_state.active_tab), unsafe_allow_html=True)
 
-# Navigation Bar - Centered Approach
-nav_cols = st.columns([1, 1.2, 1.2, 1.2, 1.2, 1])
+# Navigation Bar - Responsive Approach
+# Use a more flexible column layout for navigation
+nav_cols = st.columns([1, 1, 1, 1, 1, 1])
 with nav_cols[1]:
     if st.button("DASHBOARD", use_container_width=True, type="primary" if st.session_state.active_tab == "DASHBOARD" else "secondary", key="nav_dash"):
         st.session_state.active_tab = "DASHBOARD"
@@ -432,11 +433,11 @@ with nav_cols[2]:
         st.session_state.active_tab = "PORTFOLIO"
         st.rerun()
 with nav_cols[3]:
-    if st.button("AI ADVISOR", use_container_width=True, type="primary" if st.session_state.active_tab == "AI ADVISOR" else "secondary", key="nav_adv"):
+    if st.button("ADVISOR", use_container_width=True, type="primary" if st.session_state.active_tab == "AI ADVISOR" else "secondary", key="nav_adv"):
         st.session_state.active_tab = "AI ADVISOR"
         st.rerun()
 with nav_cols[4]:
-    if st.button("EDUCATION", use_container_width=True, type="primary" if st.session_state.active_tab == "EDUCATION" else "secondary", key="nav_edu"):
+    if st.button("EDU", use_container_width=True, type="primary" if st.session_state.active_tab == "EDUCATION" else "secondary", key="nav_edu"):
         st.session_state.active_tab = "EDUCATION"
         st.rerun()
 
@@ -447,7 +448,10 @@ active_tab = st.session_state.active_tab
 
 # TAB 1: Investment Planner
 if active_tab == "DASHBOARD":
-    col1, col2 = st.columns([2, 1])
+    # Use adaptive column layout for better mobile experience
+    col1, col2 = st.columns([2, 1]) if not st.session_state.get('is_mobile', False) else (st.container(), st.container())
+    
+    # Note: Streamlit's st.columns on mobile already stacks, but we can refine the container logic
     with col1:
         st.markdown("### Market Overview")
         

@@ -1,160 +1,124 @@
-from opik import track
-import os
-from dotenv import load_dotenv
+try:
+    from opik import track
+except ImportError:
+    def track(*args, **kwargs):
+        return lambda f: f
 
-load_dotenv()
+import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    load_dotenv = None
 
 # Pre-written expert responses (temporary for demo/submission)
 EXPERT_RESPONSES = {
-    "bitcoin_solana": """Given your profile (Age 30, High risk tolerance, 30-year timeline), here's my analysis:
+    "bitcoin_solana": """
+### ⚡ Executive Strategy: Bitcoin vs. Solana
+**Status:** High-Conviction Allocation Required
 
-**Short Answer:** Both are valuable, but I'd prioritize Solana for higher growth potential at your age.
+1. **Strategic Thesis**
+   - **Bitcoin (BTC)** is your **sovereign collateral**. It is digital gold with institutional adoption (BlackRock, nation-states). Volatility is dampening.
+   - **Solana (SOL)** is your **growth engine**. It is the "NASDAQ of Blockchain" - high throughput, massive DeFi activity, and higher beta.
 
-**Analysis:**
-- **Bitcoin:** Safer store of value, ~100% annual returns historically (volatile)
-- **Solana:** Higher risk/reward, fast blockchain, growing DeFi ecosystem
+2. **Execution Roadmap (Given Age 30/High Risk)**
+   | Asset | Allocation | Role | Action |
+   |---|---|---|---|
+   | **Bitcoin** | **60%** | Anchor | Buy spot on Coinbase/Kraken. Self-custody for long-term hold. |
+   | **Solana** | **40%** | Alpha | Buy spot. **Immediately deploy 50% to Jito Staking** for 8% APY. |
 
-**For Your Profile:**
-With 30 years ahead and high risk tolerance, I recommend:
-- 60% Bitcoin (digital gold, lower volatility)
-- 40% Solana (growth potential, DeFi access)
+3. **Tactical Entry**
+   - **DCA Strategy:** Split capital into 4 tranches over 4 weeks to smooth volatility.
+   - **Dip Trigger:** If SOL drops >15%, double the weekly buy.
 
-**Action Steps:**
-1. Dollar-cost average into both (split $500/month 60/40)
-2. Use 50% of SOL for Jito staking (8-9% APY)
-3. Hold BTC long-term as portfolio anchor
+4. **Risk Perimeter**
+   - **Solana:** Network outages (Operational risk). *Mitigation: Do not leverage >1.5x.*
+   - **Bitcoin:** Macro-liquidity drain. *Mitigation: Time horizon > 4 years.*
 
-**Risks:**
-- Crypto volatility (can drop 50-80% in bear markets)
-- Regulatory uncertainty
-- Technology risk (Solana has had network outages)
-
-**Mitigation:** Never invest more than 20-30% of total portfolio in crypto.
+**Decision:** Buy BOTH. Overweight BTC for safety, overweight SOL if seeking maximum aggressive growth.
 """,
     
-    "jito_staking": """Great question! Jito is one of the best low-risk DeFi opportunities on Solana.
+    "jito_staking": """
+### 🥩 Yield Protocol Analysis: Jito (JTO)
+**Verdict:** **Institutional Grade Yield | Low Risk**
 
-**How Jito Staking Works:**
-1. You deposit SOL tokens with Jito protocol
-2. Receive JitoSOL (liquid staking token) 1:1
-3. Your JitoSOL earns 8-9% APY automatically from:
-   - Standard Solana staking rewards (~7%)
-   - MEV (Maximal Extractable Value) rewards (~1-2%)
-4. You can use JitoSOL in other DeFi protocols while earning
+1. **The Alpha (Why Jito?)**
+   - Jito is not just staking; it is **MEV-Enhanced Staking**. You earn standard validator rewards (~7%) **PLUS** Mev rewards (arbitrage profits) on top.
+   - **Current APY:** ~7.8 - 9.2% (Variable)
 
-**For Your Profile (Age 30, High Risk, 30-year timeline):**
-This is EXCELLENT for you. At 8-9% APY over 30 years:
-- $10,000 → $132,000 (conservative)
-- Low risk compared to other DeFi
+2. **Execution Steps (Granular)**
+   - **Step 1:** Transfer SOL to a non-custodial wallet (Phantom/Solflare).
+   - **Step 2:** Go to **jito.network**.
+   - **Step 3:** Stake SOL -> Receive **JitoSOL**.
+   - **Step 4 (Advanced):** Take JitoSOL to **Kamino** or **Marginfi** and lend it for an *additional* 2-3% yield.
 
-**Action Steps:**
-1. Visit jito.network
-2. Connect Phantom or Solflare wallet
-3. Stake your SOL → receive JitoSOL
-4. Hold long-term or use in other protocols
+3. **Math (Scenario: $10,000)**
+   - **Hold SOL:** 0% Yield.
+   - **JitoSOL:** ~$800/year passive income (denominated in SOL).
+   - **Compound Growth:** In 10 years, your SOL stack doubles purely from staking, ignoring price appreciation.
 
-**Risks to Consider:**
-- Smart contract risk (protocol is audited but not zero risk)
-- Validator slashing risk (minimal, ~0.1% chance)
-- JitoSOL might temporarily depeg during extreme market stress
-
-**Best Practice:** Start with 25-50% of your SOL in Jito, keep rest liquid.
-
-Website: https://jito.network
+4. **Risk Audit**
+   - **Smart Contract Risk:** Low (Audited).
+   - **Depeg Risk:** JitoSOL price could temporarily drift from SOL. *Mitigation: Wait for arbitrage to close gap.*
 """,
     
-    "defi_risks": """Important question! DeFi offers high yields but comes with significant risks.
+    "defi_risks": """
+### ⚠️ Risk Architecture: Decentralized Finance (DeFi)
+**Briefing:** DeFi offers 20%+ yields because you are assuming risks that banks usually take.
 
-**Top DeFi Risks:**
+1. **The "Big Three" Risks**
+   | Risk Type | Severity | Explanation | Mitigation |
+   |---|---|---|---|
+   | **Smart Contract** | High | Code bugs/Hacks draining pools. | **Protocol Selection:** Only use "Blue Chips" (Aave, Kamino, Raydium, Jito). |
+   | **Impermanent Loss** | Medium | Losing value in Liquidity Pools (LPs) due to price divergence. | **Pairing:** Avoid volatile pairs. Stick to **SOL-USDC** or **JitoSOL-SOL** (Correlated). |
+   | **Liquidation** | Critical | Losing collateral when leverage positions drop. | **LTV Management:** Keep Loan-to-Value < 45%. Never max out leverage. |
 
-1. **Smart Contract Risk (HIGH)**
-   - Bugs in code can be exploited
-   - Even audited protocols have been hacked
-   - Mitigation: Only use well-audited protocols (Jito, Raydium, Kamino)
+2. **Strategic Advice for You**
+   - **Rule of Thumb:** Never put >20% of net worth in DeFi protocols.
+   - **Start Point:** Liquid Staking (Jito) is the safest entry.
+   - **Next Level:** Lending (Kamino) is medium risk.
+   - **Degenerate:** Perps/Leverage (Jupiter/Drift) is maximum risk.
 
-2. **Impermanent Loss (MEDIUM-HIGH)**
-   - In liquidity pools, price changes reduce your holdings
-   - Can lose 5-25% compared to just holding
-   - Mitigation: Use stable pairs (SOL-USDC) or single-asset vaults
-
-3. **Liquidation Risk (HIGH)**
-   - Leveraged positions get liquidated in volatile markets
-   - Can lose entire position
-   - Mitigation: Use low leverage (2-3x max), monitor positions
-
-4. **Rug Pulls/Scams (VERY HIGH for unknown protocols)**
-   - Malicious developers drain funds
-   - Mitigation: Only use top protocols with locked liquidity
-
-5. **Regulatory Risk (MEDIUM)**
-   - Government crackdowns could affect DeFi access
-   - Mitigation: Stay informed, diversify geographically
-
-**For Your Profile (High risk tolerance):**
-You can handle DeFi better than most, but still:
-- Max 20% of portfolio in DeFi
-- Start with low-risk options (Jito 8-9% APY)
-- Graduate to medium-risk (Raydium 20-25%) after learning
-
-**Recommended DeFi Allocation:**
-- 50% Jito staking (low risk, 8-9%)
-- 30% Raydium pools (medium risk, 20-25%)
-- 20% Kamino vaults (high risk, 25-35%)
-
-**Action Steps:**
-1. Start with Jito (safest)
-2. Learn about impermanent loss before Raydium
-3. Never invest more than you can afford to lose
+**Action:** Start with Jito. Sleep well.
 """,
     
-    "gold_investment": """Gold is having a moment, but let me give you the full picture for someone your age.
+    "gold_investment": """
+### 🏆 Macro Analysis: Gold (XAU) vs. Digital Assets
+**Narrative:** The "Fear Gauge" vs. The "Future".
 
-**Why Gold Is Relevant Now (January 2026):**
-1. **All-time highs:** ~$2,100-2,200/oz
-2. **Inflation hedge:** Maintains purchasing power (3-5% annual historical return)
-3. **Geopolitical uncertainty:** Safe haven demand
-4. **Central bank buying:** Countries accumulating reserves
+1. **The Conflict**
+   - **Gold** is for **Capital Preservation**. It hedges against currency collapse and max-fear events.
+   - **Crypto/Equities** are for **Capital Expansion**.
 
-**BUT - For Age 30 with High Risk Tolerance:**
-Gold should be **MINOR** in your portfolio (5-10% max). Here's why:
+2. **Allocation Logic (Age 30 / High Risk)**
+   - **Gold Allocation:** **5-10% Maximum**.
+   - **Why?** You need growth. Gold has historically underperformed the S&P 500 and Bitcoin over 10-year horizons. It is a "drag" on a young portfolio.
 
-**Problems with Gold:**
-- Low returns (~5% annually vs stocks 10%+)
-- No cash flow (no dividends/interest)
-- Opportunity cost (missing stock/crypto growth)
+3. **Where to Buy (Execution)**
+   - **Physical:** Coins/Bars (High premiums, storage costs).
+   - **ETF:** **GLD** or **IAU** (Liquid, easy, low fee).
+   - **Pax Gold (PAXG):** On-chain gold token (DeFi compatible).
 
-**Better Allocation for You:**
-Instead of heavy gold, consider:
-- **60% Stocks** (VTI, VXUS) - growth engine
-- **20% Crypto** (BTC, SOL) - high upside
-- **10% DeFi** (Jito 8-9%, Raydium 20-25%)
-- **5% Gold** (GLD ETF) - insurance only
-- **5% Bonds** - stability
+4. **Verdict**
+   - Buy Gold ONLY as insurance. Do not expect to get rich from it.
+   - **Better Play:** **Bitcoin** is dematerialized gold with a higher beta.
+""",
 
-**When Gold Makes Sense:**
-- Portfolio insurance (small allocation)
-- Economic crisis hedge
-- Diversification (low correlation to stocks)
+    "arcium_investment": """
+### 🛡️ Protocol Clarification: Arcium
+**Status:** **Infrastructure Technology (Not a Token)**
 
-**How to Invest in Gold:**
-1. **GLD ETF** - Easiest (buy like stock)
-2. **Physical gold** - Requires secure storage
-3. **Gold miners (GDX)** - Higher risk/reward
+1. **What is it?**
+   - Arcium is a **Confidential Computing Network** for Solana. It allows developers to build private DeFi apps, dark pools, and confidential AI.
+   - **It is typically NOT a direct investment** (unless they launch a governance token later). It is a **TOOL**.
 
-**Action Steps:**
-1. Buy 5-10% in GLD for diversification
-2. Focus growth capital on stocks/crypto
-3. Rebalance annually
+2. **Why it Matters?**
+   - "Institutional DeFi" requires privacy. Banks cannot trade on public ledgers where everyone sees their trades. Arcium solves this.
+   - **Bullish Proxy:** If Arcium succeeds, **Solana (SOL)** becomes more valuable as the chain for institutional privacy.
 
-**Real Talk:**
-At 30 with high risk tolerance, your focus should be GROWTH (stocks, crypto, DeFi), not preservation (gold). Use gold as insurance, not investment.
-
-**30-Year Projection:**
-- Gold: $10,000 → $43,000 (5% annual)
-- Stocks: $10,000 → $174,000 (10% annual)
-- SOL/DeFi: $10,000 → $300,000+ (15%+ annual, higher risk)
-
-Choose growth! 🚀
+3. **Actionable Intelligence**
+   - Watch for protocols *building on* Arcium.
+   - Use Arcium-enabled apps to prevent "MEV sandwich attacks" on your large trades.
 """
 }
 
@@ -184,28 +148,53 @@ if not gemini_key:
             if gemini_key: break
     except: pass
 
+try:
+    from live_data import get_live_market_data, get_defi_yields, get_market_narrative
+except ImportError:
+    get_live_market_data = None
+    get_defi_yields = None
+    get_market_narrative = None
+
 @track(project_name="goalwealth", tags=["advisor"])
 def get_investment_advice(question, user_context=None):
     """
     Get investment advice using Gemini AI with fallback to expert responses
     """
     
+    # Fetch Contextual Data
+    market_narrative = get_market_narrative() if get_market_narrative else "Stable markets."
+    
     # 1. Try AI Generation First
     if gemini_key:
         try:
             # Construct Prompt
-            context_str = f"Age {user_context.get('age', 30)}, Risk: {user_context.get('risk_tolerance', 'Medium')}, Goal: {user_context.get('goal', 'Wealth Building')}"
+            context_str = f"Age {user_context.get('age', 30)}, Risk: {user_context.get('risk_tolerance', 'Medium')}, Goal: {user_context.get('goal', 'Wealth Building')}, Capital: {user_context.get('portfolio_value', 'Unknown')}"
             
             prompt = f"""
-            You are a Brilliant Financial Advisor specializing in Global Assets, Commodities, and Crypto.
-            User Context: {context_str}
+            You are an Elite Global Wealth Strategist and DeFi Architect. 
+            You operate with ABOVE HUMAN REASONING, synthesizing massive data points into surgical execution steps.
+
+            MARKET INTELLIGENCE (Macro Context):
+            {market_narrative}
+
+            USER CONTEXT:
+            {context_str}
             
-            User Question: "{question}"
+            USER QUESTION: "{question}"
             
-            Provide a deep, professional, and actionable answer.
-            If the user asks about global markets (REITs, Gold, Oil), provide accurate macro details.
-            If asking about Solana (Jito, Raydium, Kamino), provide specific alpha and yield data.
-            Focus on maximizing investor profitability.
+            CHALLENGE: 
+            The user doesn't want generic advice. They need you to act as their Chief Investment Officer.
+            
+            EXECUTION PROTOCOL (Chain of Thought):
+            1. **Macro Analysis**: How does the current market narrative affect this specific question?
+            2. **Granular Roadmap**: 
+                - **Exactly How Much**: Provide specific % or $ allocations based on their capital.
+                - **Exactly Where**: Name specific platforms (e.g., "Vanguard", "Kamino", "Jito", "Ibkr").
+                - **Exactly When**: Defined timing (e.g., "Immediate deployment", "4-week DCA", "Wait for 5% pullback").
+            3. **The "Why" (Alpha Logic)**: Explain the institutional-grade rationale. Contrast DeFi yields vs Traditional risk-free rates if applicable.
+            4. **Risk Perimeter**: Define exact risks (Smart contract, Liquidation, Market Beta) and mitigation steps.
+
+            Format as a high-density, professional advisory briefing in Markdown. Be bold, direct, and surgical.
             """
             
             # Helper for generation with retry

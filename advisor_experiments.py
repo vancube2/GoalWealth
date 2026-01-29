@@ -1,4 +1,17 @@
-from opik import track
+try:
+    from opik import Opik, track
+    from opik.evaluation import evaluate
+    from opik.evaluation.metrics import Hallucination, Relevance, Moderation
+except ImportError:
+    # Dummy classes/decorators for when opik is missing
+    def track(*args, **kwargs):
+        return lambda f: f
+    class Opik:
+        def __init__(self, *args, **kwargs): pass
+    def evaluate(*args, **kwargs): print("Opik evaluation skipped (module missing)"); return None
+    class Hallucination: pass
+    class Relevance: pass
+    class Moderation: pass
 import time
 from evaluate_advisor import TEST_QUESTIONS, evaluate_advisor_response
 

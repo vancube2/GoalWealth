@@ -1,4 +1,9 @@
-from opik import track
+try:
+    from opik import track
+except ImportError:
+    def track(*args, **kwargs):
+        return lambda f: f
+
 
 @track(project_name="goalwealth", tags=["opportunities"])
 def check_opportunities(user_profile):

@@ -452,6 +452,50 @@ def apply_custom_styles():
         object-fit: contain;
         filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
     }
+
+    /* === MOBILE RESPONSIVENESS === */
+    @media (max-width: 768px) {
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 1rem !important;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            font-size: 0.8rem !important;
+        }
+
+        [data-testid="stMetricValue"] {
+            font-size: 1.5rem !important;
+        }
+
+        .stButton > button {
+            padding: 0.4rem 0.8rem !important;
+            font-size: 0.75rem !important;
+        }
+
+        /* Adjust Chat Message Padding for Mobile */
+        [data-testid="stChatMessage"] {
+            padding: 1rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        /* Adjust Vault Card Height for Mobile */
+        [style*="height: 450px"] {
+            height: auto !important;
+            min-height: 400px;
+        }
+
+        /* Ensure ticker container doesn't overflow weirdly */
+        .market-ticker-container {
+            margin: 1rem 0 !important;
+        }
+        
+        /* Reduce header sizes for mobile */
+        h1 { font-size: 2.5rem !important; }
+        h2 { font-size: 1.8rem !important; }
+        h3 { font-size: 1.4rem !important; }
+    }
     
     </style>
     """, unsafe_allow_html=True)
@@ -483,7 +527,7 @@ def get_img_as_base64(file_path):
         return ""
 
 def create_hero_section():
-    """Create premium hero section"""
+    """Create premium hero section with responsive design"""
     img_path = os.path.join("assets", "hero_bg.png")
     img_base64 = get_img_as_base64(img_path)
     
@@ -493,12 +537,12 @@ def create_hero_section():
     if img_base64:
         bg_style = f"background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('data:image/png;base64,{img_base64}'); background-size: cover; background-position: center;"
 
-    return f"""<div style="
+    return f"""<div class="hero-section" style="
         {bg_style}
         border: 1px solid rgba(59, 130, 246, 0.2); 
         backdrop-filter: blur(10px); 
         border-radius: 20px; 
-        padding: 4rem 2rem; 
+        padding: clamp(2rem, 8vw, 4rem) 1rem; 
         margin-bottom: 3rem; 
         text-align: center; 
         position: relative; 
@@ -506,8 +550,8 @@ def create_hero_section():
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
     ">
         <div style="position: relative; z-index: 1;">
-            <h1 style="font-size: 4rem; margin: 0; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(59, 130, 246, 0.3); letter-spacing: -0.04em;">GOALWEALTH</h1>
-            <p style="font-size: 1.2rem; color: #E2E8F0; margin-top: 1rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase;">Professional Asset Management</p>
+            <h1 style="font-size: clamp(2.5rem, 10vw, 4.2rem); margin: 0; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(59, 130, 246, 0.3); letter-spacing: -0.04em; line-height: 1.1;">GOALWEALTH</h1>
+            <p style="font-size: clamp(0.9rem, 3vw, 1.25rem); color: #E2E8F0; margin-top: 1rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase;">Professional Asset Management</p>
         </div>
     </div>"""
 
@@ -564,10 +608,10 @@ def create_stat_card(title, value, change=None, logo_url=None):
     return f"""<div style="{create_glass_card()}">
         {logo_html}
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-            <div style="color: #94A3B8; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">{title}</div>
+            <div style="color: #94A3B8; font-size: clamp(0.7rem, 2.5vw, 0.85rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">{title}</div>
             {change_html}
         </div>
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; color: #fff; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: break-word;">{value}</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: clamp(1.2rem, 5vw, 1.6rem); color: #fff; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: break-word;">{value}</div>
     </div>"""
 
 def create_metric_card_large(title, value, change=None, logo_url=None):

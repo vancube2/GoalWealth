@@ -1,5 +1,10 @@
 from advisor_agent import get_investment_advice
-from opik import track
+try:
+    from opik import track
+except ImportError:
+    def track(*args, **kwargs):
+        return lambda f: f
+
 import time
 
 # Test questions for evaluation

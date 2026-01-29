@@ -127,6 +127,45 @@ def _get_mock_data(symbol):
         'history': history
     }
 
+def get_market_narrative():
+    """Synthesizes current market conditions into a macro-narrative for AI context"""
+    try:
+        data = get_live_market_data()
+        
+        # Key indicators
+        btc = data.get('BTC', {})
+        sol = data.get('SOL', {})
+        spy = data.get('SPY', {})
+        gold = data.get('GOLD', {})
+        
+        narrative = []
+        
+        # Crypto Narrative
+        if btc.get('change_24h', 0) > 2:
+            narrative.append(f"Bitcoin is showing strong momentum (+{btc['change_24h']:.1f}%), indicating a high-risk appetite across digital assets.")
+        elif btc.get('change_24h', 0) < -2:
+            narrative.append(f"Bitcoin is experiencing a drawdown ({btc['change_24h']:.1f}%), suggesting tactical caution or dip-buying opportunities in crypto.")
+        else:
+            narrative.append("Bitcoin is consolidating, suggesting a search for the next catalyst.")
+            
+        # Solana Ecosystem
+        if sol.get('change_24h', 0) > 5:
+            narrative.append(f"Solana is outperforming (+{sol['change_24h']:.1f}%), likely driven by ecosystem activity and DeFi inflows.")
+        
+        # Equities
+        if spy.get('change_24h', 0) > 1:
+            narrative.append(f"US Equities (S&P 500) are bullish (+{spy['change_24h']:.1f}%), reflecting positive macro-sentiments.")
+        elif spy.get('change_24h', 0) < -1:
+            narrative.append(f"Equity markets are showing weakness ({spy['change_24h']:.1f}%), possibly due to interest rate concerns or geopolitical headers.")
+            
+        # Safe Havens
+        if gold.get('change_24h', 0) > 1:
+            narrative.append(f"Gold is up (+{gold['change_24h']:.1f}%), highlighting a flight to safety and inflation concerns.")
+            
+        return " ".join(narrative)
+    except Exception as e:
+        return "Market is currently in an equilibrium state. Focus on long-term structural trends."
+
 def get_defi_yields():
     """Get current DeFi yields from DefiLlama API"""
     try:
