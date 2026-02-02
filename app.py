@@ -199,31 +199,24 @@ with st.sidebar:
                 updated = False
                 if extracted.get('age'): 
                     st.session_state['age_val'] = int(extracted['age'])
-                    st.session_state['age_input'] = int(extracted['age'])
                     updated = True
                 if extracted.get('income'): 
                     st.session_state['income_val'] = int(extracted['income'])
-                    st.session_state['income_input'] = int(extracted['income'])
                     updated = True
                 if extracted.get('capital'): 
                     st.session_state['capital_val'] = int(extracted['capital'])
-                    st.session_state['capital_input'] = int(extracted['capital'])
                     updated = True
                 if extracted.get('monthly'): 
                     st.session_state['monthly_val'] = int(extracted['monthly'])
-                    st.session_state['monthly_input'] = int(extracted['monthly'])
                     updated = True
                 if extracted.get('timeline'): 
                     st.session_state['timeline_val'] = int(extracted['timeline'])
-                    st.session_state['timeline_input'] = int(extracted['timeline'])
                     updated = True
                 if extracted.get('risk_tolerance'): 
                     st.session_state['risk_val'] = extracted['risk_tolerance']
-                    st.session_state['risk_input'] = extracted['risk_tolerance']
                     updated = True
                 if extracted.get('goal'): 
                     st.session_state['goal_val'] = extracted['goal']
-                    st.session_state['goal_input'] = extracted['goal']
                     updated = True
                 
                 if updated:
@@ -291,7 +284,6 @@ with st.sidebar:
             elif score >= 5: new_risk = "Medium"
             
             st.session_state['risk_val'] = new_risk
-            st.session_state['risk_input'] = new_risk
             st.success(f"Risk Audit Complete: {new_risk} Tolerance")
             time.sleep(1)
             st.rerun()
