@@ -14,6 +14,8 @@ import plotly.graph_objects as go
 from streamlit_mic_recorder import mic_recorder
 from voice_processor import extract_profile_from_voice, process_voice_advisor_query, transcribe_voice
 from live_data import get_live_market_data, get_defi_yields, get_portfolio_growth_projection
+from solana_service import get_solana_service
+
 
 import base64
 from pathlib import Path
@@ -266,6 +268,34 @@ with st.sidebar:
         risk_idx = risk_opts.index(risk_val) if risk_val in risk_opts else 1
         risk_tolerance = st.selectbox("Risk", risk_opts, index=risk_idx, key="risk_input")
     
+    # --- FORMAL RISK ASSESSMENT ---
+    with st.expander("🛡️ FORMAL RISK AUDIT", expanded=False):
+        st.caption("ANALYZE YOUR RISK PROFILE")
+        q1 = st.radio("Time Horizon", ["< 5 years", "5-10 years", "10-20 years", "20+ years"])
+        q2 = st.radio("Market Volatility Response", ["Sell everything", "Sell partially", "Hold firm", "Buy the dip"])
+        q3 = st.radio("Investment Knowledge", ["Novice", "Intermediate", "Advanced", "Institutional"])
+        
+        if st.button("CALCULATE RISK TOLERANCE", use_container_width=True):
+            score = 0
+            if q1 == "20+ years": score += 3
+            elif q1 == "10-20 years": score += 2
+            
+            if q2 == "Buy the dip": score += 5
+            elif q2 == "Hold firm": score += 3
+            
+            if q3 == "Institutional": score += 4
+            elif q3 == "Advanced": score += 3
+            
+            new_risk = "Low"
+            if score >= 9: new_risk = "High"
+            elif score >= 5: new_risk = "Medium"
+            
+            st.session_state['risk_val'] = new_risk
+            st.session_state['risk_input'] = new_risk
+            st.success(f"Risk Audit Complete: {new_risk} Tolerance")
+            time.sleep(1)
+            st.rerun()
+    
     # Financial Details
     st.markdown("###")
     st.caption("FINANCIALS")
@@ -484,6 +514,24 @@ if active_tab == "DASHBOARD":
         
         st.markdown("#### Performance")
         st.markdown(f"<div style='text-align:right; color:#94A3B8; font-family:JetBrains Mono;'>{currency_code} Markets Open</div>", unsafe_allow_html=True)
+
+        # Solana Network Status
+        sol_service = get_solana_service()
+        tps = sol_service.get_tps()
+        slot = sol_service.get_slot_height()
+        
+        st.markdown(f"""
+        <div style="margin-top: 1rem; padding: 0.8rem; background: rgba(20, 241, 149, 0.05); border: 1px dashed rgba(20, 241, 149, 0.2); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 8px; height: 8px; background: #14F195; border-radius: 50%; box-shadow: 0 0 8px #14F195;"></div>
+                <span style="font-size: 0.8rem; color: #14F195; font-weight: 600;">Solana Mainnet</span>
+            </div>
+            <div style="font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #94A3B8;">
+                TPS: <span style="color: #E2E8F0;">{tps}</span> | Slot: {slot}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
     
     from live_data import get_live_market_data, get_defi_yields, get_portfolio_growth_projection
     
@@ -711,6 +759,32 @@ elif active_tab == "PORTFOLIO":
     if 'portfolio_holdings' not in st.session_state:
         st.session_state.portfolio_holdings = []
     
+    # Solana Wallet Integration
+    with st.expander("🔌 CONNECT SOLANA WALLET (Read-Only)"):
+        sol_wallet = st.text_input("Enter Solana Wallet Address", placeholder="Address...")
+        if sol_wallet:
+            if st.button("Fetch On-Chain Balance"):
+                with st.spinner("Querying blockchain..."):
+                    sol_service = get_solana_service()
+                    bal = sol_service.get_balance(sol_wallet)
+                    if bal > 0:
+                        # Add or Update SOL in holdings
+                        existing = next((h for h in st.session_state.portfolio_holdings if h['symbol'] == 'SOL'), None)
+                        if existing:
+                            existing['qty'] = bal  # Update quantity
+                            st.info(f"Updated SOL balance to {bal:.4f}")
+                        else:
+                            st.session_state.portfolio_holdings.append({
+                                'symbol': 'SOL', 
+                                'qty': bal, 
+                                'cost': 140 # Assume generic cost basis or 0
+                            })
+                            st.success(f"Found {bal:.4f} SOL")
+                        st.rerun()
+                    else:
+                        st.warning("No SOL found or invalid address.")
+
+    
     # --- Sidebar/Management Controls ---
     col_add, col_actions = st.columns([2, 1])
     
@@ -835,16 +909,28 @@ elif active_tab == "PORTFOLIO":
         with sum_col1:
             st.markdown(create_stat_card("TOTAL MARKET VALUE", f"{currency_symbol}{total_market_value:,.2f}", 0, "💰"), unsafe_allow_html=True)
             
-            # Allocation Chart with institutional colors
+            # Allocation Chart with Asset Class Intelligence
+            asset_registry = get_asset_registry()
+            def get_category(sym):
+                match = next((a for a in asset_registry if a['symbol'] == sym), None)
+                return match['category'] if match else 'Other'
+            
+            categories = {}
+            for h in st.session_state.portfolio_holdings:
+                cat = get_category(h['symbol'])
+                val = h['qty'] * market_data.get(h['symbol'], {'price': 0})['price'] * rate
+                categories[cat] = categories.get(cat, 0) + val
+                
             fig_alloc = go.Figure(data=[go.Pie(
-                labels=[h['symbol'] for h in st.session_state.portfolio_holdings],
-                values=[(h['qty'] * market_data.get(h['symbol'], {'price': 0})['price']) for h in st.session_state.portfolio_holdings],
+                labels=list(categories.keys()),
+                values=list(categories.values()),
                 hole=.7,
                 marker=dict(colors=['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']),
                 textinfo='label+percent',
                 hoverinfo='label+value+percent'
             )])
             fig_alloc.update_layout(get_dark_chart_layout(height=280))
+            fig_alloc.update_layout(title={'text': "Asset Class Distribution", 'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top', 'font': {'size': 12, 'color': '#94A3B8'}})
             fig_alloc.update_traces(showlegend=False, textfont_size=10)
             st.plotly_chart(fig_alloc, use_container_width=True, key="port_alloc_chart")
 

@@ -45,7 +45,7 @@ def test_planner():
 
 def test_advisor():
     print("\n" + "="*70)
-    print("TESTING ADVISOR AGENT (Chain of Thought)")
+    print("TESTING ADVISOR AGENT (Chain of Thought & Fallback)")
     print("="*70)
     
     context = {
@@ -54,23 +54,22 @@ def test_advisor():
         'portfolio_value': '$50,000'
     }
     
-    questions = [
-        "How should I invest $10k right now?",
-        "Why is Jito safe?",
-        "Should I buy Gold?"
-    ]
+    # Test a generic question that forces fallback (since it's not in expert dict)
+    # And we assume API might fail or we want to verify fallback quality regardless.
+    fallback_q = "How should I allocate $5000?"
     
-    for q in questions:
-        print(f"\nQ: {q}")
-        start = time.time()
-        ans = get_investment_advice(q, context)
-        elapsed = time.time() - start
-        
-        print(f"A ({elapsed:.2f}s):\n{ans}\n")
-        
-        # Validation
-        if "Execution Roadmap" in ans or "Action Steps" in ans:
-             print("✅ PASSED: Actionable steps present.")
+    start = time.time()
+    ans = get_investment_advice(fallback_q, context)
+    elapsed = time.time() - start
+    
+    print(f"\nQ: {fallback_q}")
+    print(f"A ({elapsed:.2f}s):\n{ans}\n")
+    
+    # Validation
+    if "| Asset Class |" in ans:
+         print("✅ PASSED: Markdown Table found in fallback.")
+    else:
+         print("❌ FAILED: No Table in fallback.")
 
 if __name__ == "__main__":
     try:

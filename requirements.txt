@@ -8,3 +8,6 @@ requests>=2.31.0
 pandas>=2.0.0
 plotly>=5.18.0
 streamlit-mic-recorder>=0.0.1
+alpha_vantage>=2.3.1
+solana>=0.30.0
+solders>=0.21.0

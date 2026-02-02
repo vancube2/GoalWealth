@@ -77,14 +77,36 @@ def create_investment_plan(user_profile):
         yield_summary = "\n".join([f"- {p}: {y['apy']}% APY (TVL: {y['tvl']})" for p, y in defi_yields.items()])
     
     try:
-        # Construct the high-density prompt
+        # Construct the high-density prompt with explicit reasoning stages
         prompt = f"""
         You are a world-class Institutional Multi-Asset Chief Investment Officer (CIO). 
         Your reasoning must be ABOVE HUMAN CAPACITY—synthesizing macro-economics, DeFi liquidity cycles, and quantitative risk management.
 
         CRITICAL OBJECTIVE:
-        Provide an EXACT, GRANULAR execution roadmap. No generic advice. The user needs to know exactly WHAT, HOW MUCH, WHERE, and WHEN.
+        Follow this EXACT four-stage reasoning process before outputting the final plan.
 
+        STAGE 1: CONTEXT SYNTHESIS
+        - Analyze the user's risk tolerance ({user_profile['risk_tolerance']}) against current market conditions ({market_narrative}).
+        - Identify the "Real Yield" opportunity in the current cycle.
+
+        STAGE 2: STRATEGY DRAFTING
+        - Draft 3 potential allocation models: 
+            A) Conservative Anchor 
+            B) Aggressive Growth 
+            C) Balanced Alpha
+        - Select the most appropriate one for a {user_profile['age']}-year-old with a goal of "{user_profile['goal']}".
+
+        STAGE 3: CRITICAL AUDIT (SWOT)
+        - Perform a SWOT analysis on the selected strategy.
+        - STRENGTHS: Why this wins.
+        - WEAKNESSES: Where it might fail.
+        - OPPORTUNITIES: Market tailwinds.
+        - THREATS: Tail risks (Smart contract bugs, Macro shifts).
+
+        STAGE 4: FINAL REFINEMENT
+        - Refine the strategy based on the audit. Ensure it is hyper-personalized and ACTIONABLE.
+
+        ---
         CURRENT MARKET INTELLIGENCE:
         {market_narrative}
 
@@ -101,26 +123,30 @@ def create_investment_plan(user_profile):
         - Risk Tolerance: {user_profile['risk_tolerance']}
         - Goal: {user_profile['goal']}
         
-        REQUIREMENTS:
-        1. **Capital Deployment Roadmap (MANDATORY TABLE)**:
-           | Asset class | Target % | Exact Ticker/Protocol | Platform to Use | Timing/Strategy |
+        ---
+        OUTPUT STRUCTURE:
+        
+        1. <details><summary><b>🧠 REASONING TRACE (CIO Thinking Process)</b></summary>
+           (Show your Synthesis, Brief Drafting highlights, and Critical Audit here. Be honest about risks.)
+           </details>
+
+        2. # 📋 YOUR PERSONALIZED STRATEGIC ROADMAP
+           (Markdown Header)
+
+        3. **CAPITAL DEPLOYMENT (MANDATORY TABLE)**:
+           | Asset class | Target % | Exact Ticker/Protocol | Platform | Timing/Strategy |
            |---|---|---|---|---|
-           (Fill this table with specific, data-driven targets)
 
-        2. **The "Why" (Logic Pillars)**: 
-           - Explain the macro-reasoning for your allocation.
-           - Why choose DeFi yields (e.g. Kamino) over traditional benchmarks (e.g. Treasury yields) right now?
-           - Synthesize the current volatility into your entry strategy.
+        4. **THE LOGIC PILLARS**:
+           - Macro-reasoning for the selection.
 
-        3. **Tactical Timing & Execution (The "When")**:
-           - Break down the current entry: Is it a Lump Sum buy, a 4-week DCA, or waiting for a specific technical trigger?
-           - Specify exact platforms (e.g., "Vanguard for ETFs", "Phantom/Kamino for Solana DeFi").
+        5. **EXECUTION PROTOCOL**:
+           - Specific steps (e.g., "1. Deposit USDC on Phantom, 2. Stake on Kamino").
 
-        4. **Risk Architecture**:
-           - Define hard stop-losses or rebalancing triggers.
-           - Address smart-contract risk vs market-beta risk.
+        6. **RISK PERIMETER**:
+           - Safety warnings and rebalancing triggers.
 
-        Format as a high-density, professional strategy document. Use Bold for key profitability triggers. No fluff.
+        Use high-density, professional language. Use Bold for key profitability triggers.
         """
 
         # Helper for generation with retry

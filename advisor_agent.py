@@ -216,26 +216,50 @@ def get_investment_advice(question, user_context=None):
 
             # Model Priority List - Comprehensive for Free/Paid Tiers
             models_to_try = [
-                'gemini-2.0-flash',       # Try canonical production name first
-                'gemini-2.0-flash-exp',   # Experimental tier
-                'gemini-1.5-flash',       # Highly reliable fallback
-                'gemini-1.5-pro',
-                'models/gemini-1.5-flash', # Version with prefix
-                'models/gemini-2.0-flash-exp'
+                'gemini-2.0-flash',
+                'gemini-1.5-flash',
+                'gemini-1.5-pro'
             ]
             
+            final_response = None
             for model_name in models_to_try:
                 try:
                     response = generate_with_retry(model_name, prompt)
                     if response:
                         res_text = response.text
                         if "capacity reached" in res_text.lower() or "quota exceeded" in res_text.lower():
-                            continue # Try next model
-                        return res_text
+                            continue 
+                        
+                        # --- VERIFICATION LAYER ---
+                        # Perform a quick internal audit of the response quality
+                        audit_prompt = f"""
+                        You are a Risk Compliance Auditor. 
+                        Review this advice for a user with {user_context.get('risk_tolerance', 'Medium')} risk tolerance.
+                        
+                        ADVICE:
+                        {res_text}
+                        
+                        CRITIQUE:
+                        - Does it specify tickers/platforms?
+                        - Does it contradict the risk profile?
+                        - Is it actionable?
+                        
+                        If it fails, output 'FAIL: [Reason]'. If it passes, output 'PASS'.
+                        """
+                        audit_res = generate_with_retry(model_name, audit_prompt)
+                        if audit_res and "FAIL" in audit_res.text:
+                            print(f"Audit failed for {model_name}: {audit_res.text}")
+                            continue # Try next model or fallback
+                            
+                        final_response = res_text
+                        break
                 except Exception as e:
                     pass
             
-            # Universal Fallback if all models fail
+            if final_response:
+                return final_response
+            
+            # Universal Fallback if all models fail or audit fails
             return _get_fallback_advice(question, user_context)
                     
         except Exception as e:
