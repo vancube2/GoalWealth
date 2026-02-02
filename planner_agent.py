@@ -169,6 +169,8 @@ def create_investment_plan(user_profile):
 
         # Model Priority List - Comprehensive for Free/Paid Tiers
         models_to_try = [
+            'gemini-3-pro',           # Next-gen reasoning model
+            'gemini-3-flash',         # Next-gen high-efficiency model
             'gemini-2.0-flash',       # Try canonical production name first
             'gemini-2.0-flash-exp',   # Experimental tier
             'gemini-1.5-flash',       # Highly reliable fallback

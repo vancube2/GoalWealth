@@ -216,6 +216,8 @@ def get_investment_advice(question, user_context=None):
 
             # Model Priority List - Comprehensive for Free/Paid Tiers
             models_to_try = [
+                'gemini-3-pro',
+                'gemini-3-flash',
                 'gemini-2.0-flash',
                 'gemini-1.5-flash',
                 'gemini-1.5-pro'
